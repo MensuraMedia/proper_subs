@@ -1,15 +1,16 @@
 {
   "manifest_version": 3,
   "name": "Proper Subs — Structured Japanese Subtitles",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Transforms Japanese subtitles into literal structured English preserving exact word order with visible particles for language learners. Works with streaming content, videos, news, anime, and more.",
   "permissions": [
-    "storage",
-    "scripting",
-    "activeTab"
+    "storage"
   ],
   "host_permissions": [
-    "<all_urls>"
+    "https://api.groq.com/*",
+    "https://api.openai.com/*",
+    "https://api.anthropic.com/*",
+    "https://generativelanguage.googleapis.com/*"
   ],
   "background": {
     "service_worker": "background.js",

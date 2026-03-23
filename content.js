@@ -15,6 +15,7 @@
   let debugMode = false;
   let lastCueText = '';
   let observer = null;
+  let bodyObserver = null;
   let pollInterval = null;
   let subtitleElement = null;
 
@@ -28,9 +29,14 @@
         enabled: true,
         debugMode: false,
         customSelectors: '',
-        displayMode: 'replace',      // 'replace' | 'dual' | 'overlay'
+        displayMode: 'replace',
         timingOffset: 0
       }, settings => {
+        if (chrome.runtime.lastError) {
+          console.warn('[ProperSubs] Failed to load settings:', chrome.runtime.lastError);
+          resolve({ enabled: true, debugMode: false, customSelectors: '', displayMode: 'replace', timingOffset: 0 });
+          return;
+        }
         enabled = settings.enabled;
         debugMode = settings.debugMode;
         resolve(settings);
@@ -203,6 +209,15 @@
     if (debugMode) console.log('[ProperSubs] Polling fallback started');
   }
 
+  // ── Body observer cleanup ─────────────────────────────────────────────
+  function cleanupBodyObserver() {
+    if (bodyObserver) {
+      bodyObserver.disconnect();
+      bodyObserver = null;
+      if (debugMode) console.log('[ProperSubs] Body observer disconnected');
+    }
+  }
+
   // ── Initialization ────────────────────────────────────────────────────
   async function init() {
     const settings = await loadSettings();
@@ -232,13 +247,23 @@
     // Element not found yet — wait for it (streaming sites load players dynamically)
     if (debugMode) console.log('[ProperSubs] No subtitle element found, watching for player load...');
 
-    const bodyObserver = new MutationObserver(() => {
-      subtitleElement = findSubtitleElement(settings.customSelectors);
-      if (subtitleElement) {
-        bodyObserver.disconnect();
-        startObserver(subtitleElement);
-        if (debugMode) console.log('[ProperSubs] Subtitle element appeared, observer attached');
-      }
+    let bodyObserverDebounce = null;
+
+    bodyObserver = new MutationObserver((mutations) => {
+      // Debounce: only check after mutations settle (100ms)
+      if (bodyObserverDebounce) clearTimeout(bodyObserverDebounce);
+      bodyObserverDebounce = setTimeout(() => {
+        // Quick check: were any nodes actually added?
+        const hasAddedNodes = mutations.some(m => m.addedNodes.length > 0);
+        if (!hasAddedNodes) return;
+
+        subtitleElement = findSubtitleElement(settings.customSelectors);
+        if (subtitleElement) {
+          cleanupBodyObserver();
+          startObserver(subtitleElement);
+          if (debugMode) console.log('[ProperSubs] Subtitle element appeared, observer attached');
+        }
+      }, 100);
     });
 
     bodyObserver.observe(document.body, {
@@ -249,7 +274,7 @@
     // Also try textTracks API as parallel fallback
     tryTextTracksAPI();
 
-    // Final fallback: if nothing is found after 30s, try polling
+    // Disconnect body observer after 30s regardless — prevent memory leak on non-streaming pages
     setTimeout(() => {
       if (!subtitleElement) {
         subtitleElement = findSubtitleElement(settings.customSelectors);
@@ -259,6 +284,7 @@
           console.log('[ProperSubs] No subtitle element found after 30s timeout');
         }
       }
+      cleanupBodyObserver();
     }, 30000);
   }
 
@@ -282,19 +308,26 @@
 
   // ── Listen for messages from popup/background ──────────────────────────
   chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-    if (msg.type === 'GET_STATUS') {
-      sendResponse({
-        enabled: enabled,
-        hasSubtitleElement: !!subtitleElement,
-        lastCue: lastCueText,
-        site: typeof ProperSubsSiteDetect !== 'undefined'
-          ? ProperSubsSiteDetect.detect()
-          : null
-      });
-    }
-    if (msg.type === 'TOGGLE') {
-      enabled = msg.enabled;
-      chrome.storage.sync.set({ enabled });
+    switch (msg.type) {
+      case 'GET_STATUS':
+        sendResponse({
+          enabled: enabled,
+          hasSubtitleElement: !!subtitleElement,
+          lastCue: lastCueText,
+          site: typeof ProperSubsSiteDetect !== 'undefined'
+            ? ProperSubsSiteDetect.detect()
+            : null
+        });
+        break;
+
+      case 'TOGGLE':
+        enabled = msg.enabled;
+        chrome.storage.sync.set({ enabled });
+        sendResponse({ ok: true });
+        break;
+
+      default:
+        return false;
     }
   });
 

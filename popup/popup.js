@@ -9,6 +9,10 @@ chrome.storage.sync.get({
   provider: 'groq',
   particleColors: true
 }, settings => {
+  if (chrome.runtime.lastError) {
+    console.warn('[ProperSubs] Failed to load popup settings:', chrome.runtime.lastError);
+    return;
+  }
   $('toggle-enabled').checked = settings.enabled;
   $('display-mode').value = settings.displayMode;
   $('provider').value = settings.provider;
@@ -52,7 +56,10 @@ $('toggle-enabled').addEventListener('change', e => {
 
   chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
     if (tabs[0]) {
-      chrome.tabs.sendMessage(tabs[0].id, { type: 'TOGGLE', enabled });
+      chrome.tabs.sendMessage(tabs[0].id, { type: 'TOGGLE', enabled }, () => {
+        // Ignore errors if content script not loaded on this tab
+        if (chrome.runtime.lastError) return;
+      });
     }
   });
 });
@@ -84,10 +91,10 @@ $('btn-test').addEventListener('click', () => {
     btn.textContent = 'Test API';
 
     if (response && response.ok) {
-      lastCue.textContent = `✓ ${response.structured}`;
+      lastCue.textContent = response.structured;
       lastCue.classList.add('success');
     } else {
-      lastCue.textContent = `✗ ${response ? response.error : 'No response'}`;
+      lastCue.textContent = response ? response.error : 'No response';
       lastCue.classList.add('error');
     }
 

@@ -3,9 +3,9 @@
 const $ = id => document.getElementById(id);
 
 // ── All setting keys with defaults ───────────────────────────────────────
-const DEFAULTS = {
+// Sync storage: preferences (synced across Chrome instances)
+const SYNC_DEFAULTS = {
   provider: 'groq',
-  apiKey: '',
   model: '',
   transformMode: 'llm',
   displayMode: 'replace',
@@ -16,11 +16,36 @@ const DEFAULTS = {
   timingOffset: 0,
   autoPause: false,
   customSelectors: '',
-  debugMode: false
+  debugMode: false,
+  timeoutMs: 2000
+};
+
+// Local storage: secrets (never synced to Google)
+const LOCAL_DEFAULTS = {
+  apiKey: ''
 };
 
 // ── Load settings into form ──────────────────────────────────────────────
-chrome.storage.sync.get(DEFAULTS, settings => {
+Promise.all([
+  new Promise(resolve => chrome.storage.sync.get(SYNC_DEFAULTS, s => {
+    if (chrome.runtime.lastError) {
+      console.warn('[ProperSubs] Failed to load sync settings:', chrome.runtime.lastError);
+      resolve(SYNC_DEFAULTS);
+      return;
+    }
+    resolve(s);
+  })),
+  new Promise(resolve => chrome.storage.local.get(LOCAL_DEFAULTS, s => {
+    if (chrome.runtime.lastError) {
+      console.warn('[ProperSubs] Failed to load local settings:', chrome.runtime.lastError);
+      resolve(LOCAL_DEFAULTS);
+      return;
+    }
+    resolve(s);
+  }))
+]).then(([syncSettings, localSettings]) => {
+  const settings = { ...syncSettings, ...localSettings };
+
   $('provider').value = settings.provider;
   $('api-key').value = settings.apiKey;
   $('model').value = settings.model;
@@ -56,9 +81,9 @@ Object.entries(RANGE_UNITS).forEach(([id, unit]) => {
 
 // ── Save ─────────────────────────────────────────────────────────────────
 $('btn-save').addEventListener('click', () => {
-  const settings = {
+  // Sync storage: preferences only
+  const syncSettings = {
     provider: $('provider').value,
-    apiKey: $('api-key').value,
     model: $('model').value,
     transformMode: $('transform-mode').value,
     displayMode: $('display-mode').value,
@@ -72,7 +97,15 @@ $('btn-save').addEventListener('click', () => {
     debugMode: $('debug-mode').checked
   };
 
-  chrome.storage.sync.set(settings, () => {
+  // Local storage: API key (never synced)
+  const localSettings = {
+    apiKey: $('api-key').value
+  };
+
+  Promise.all([
+    new Promise(resolve => chrome.storage.sync.set(syncSettings, resolve)),
+    new Promise(resolve => chrome.storage.local.set(localSettings, resolve))
+  ]).then(() => {
     const status = $('save-status');
     status.textContent = 'Settings saved';
     status.classList.add('visible');
@@ -90,14 +123,19 @@ $('btn-test').addEventListener('click', () => {
   result.className = 'test-result';
 
   // Save current settings first so background uses them
-  const settings = {
+  const syncSettings = {
     provider: $('provider').value,
-    apiKey: $('api-key').value,
     model: $('model').value,
     transformMode: $('transform-mode').value
   };
+  const localSettings = {
+    apiKey: $('api-key').value
+  };
 
-  chrome.storage.sync.set(settings, () => {
+  Promise.all([
+    new Promise(resolve => chrome.storage.sync.set(syncSettings, resolve)),
+    new Promise(resolve => chrome.storage.local.set(localSettings, resolve))
+  ]).then(() => {
     chrome.runtime.sendMessage({ type: 'TEST_API' }, response => {
       btn.disabled = false;
       btn.textContent = 'Test Connection';
