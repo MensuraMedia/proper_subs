@@ -1,0 +1,168 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #121212;
+  color: #e0e0e0;
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+h1 {
+  font-size: 24px;
+  color: #d4a017;
+  margin-bottom: 24px;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 16px;
+  color: #d4a017;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+section {
+  margin-bottom: 32px;
+}
+
+/* ── Fields ───────────────────────────────────────────────────────────── */
+.field {
+  margin-bottom: 16px;
+}
+
+.field > label {
+  display: block;
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 4px;
+}
+
+.optional {
+  color: #555;
+  font-weight: 400;
+}
+
+input[type="text"],
+input[type="password"],
+select {
+  width: 100%;
+  background: #1e1e1e;
+  color: #e0e0e0;
+  border: 1px solid #3a3a3a;
+  padding: 8px 12px;
+  font-size: 14px;
+  outline: none;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+select:focus {
+  border-color: #d4a017;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: #d4a017;
+}
+
+.hint {
+  font-size: 11px;
+  color: #555;
+  margin-top: 4px;
+}
+
+/* ── Checkbox ─────────────────────────────────────────────────────────── */
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #d4a017;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────── */
+.btn {
+  background: #252525;
+  color: #d4a017;
+  border: 1px solid #3a3a3a;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn:hover { background: #333; }
+.btn:disabled { opacity: 0.5; cursor: wait; }
+.btn.primary {
+  background: #d4a017;
+  color: #111;
+  border-color: #d4a017;
+}
+.btn.primary:hover { background: #b88913; }
+
+/* ── Test result ──────────────────────────────────────────────────────── */
+.test-result {
+  margin-top: 8px;
+  font-size: 12px;
+  min-height: 20px;
+  padding: 6px 0;
+}
+.test-result.success { color: #4ecca3; }
+.test-result.error { color: #e06666; }
+
+/* ── Save bar ─────────────────────────────────────────────────────────── */
+.save-bar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #2a2a2a;
+}
+
+#save-status {
+  font-size: 12px;
+  color: #4ecca3;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+#save-status.visible { opacity: 1; }
+
+/* ── Particle table ───────────────────────────────────────────────────── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 6px 12px;
+  text-align: left;
+  border-bottom: 1px solid #2a2a2a;
+  font-size: 13px;
+}
+
+th {
+  color: #999;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+}

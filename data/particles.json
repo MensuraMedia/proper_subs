@@ -1,0 +1,107 @@
+{
+  "particles": {
+    "wa": {
+      "japanese": "は",
+      "role": "topic marker",
+      "color": "#5b9bd5",
+      "group": "case"
+    },
+    "ga": {
+      "japanese": "が",
+      "role": "subject marker",
+      "color": "#5b9bd5",
+      "group": "case"
+    },
+    "o": {
+      "japanese": "を",
+      "role": "object marker",
+      "color": "#e06666",
+      "group": "case"
+    },
+    "ni": {
+      "japanese": "に",
+      "role": "indirect object / direction / time",
+      "color": "#6aa84f",
+      "group": "case"
+    },
+    "de": {
+      "japanese": "で",
+      "role": "location of action / means",
+      "color": "#d4a017",
+      "group": "case"
+    },
+    "kara": {
+      "japanese": "から",
+      "role": "from / because",
+      "color": "#b07cd8",
+      "group": "range"
+    },
+    "made": {
+      "japanese": "まで",
+      "role": "until / as far as",
+      "color": "#b07cd8",
+      "group": "range"
+    },
+    "to": {
+      "japanese": "と",
+      "role": "and / with / quotation",
+      "color": "#e69138",
+      "group": "conjunctive"
+    },
+    "mo": {
+      "japanese": "も",
+      "role": "also / too",
+      "color": "#5b9bd5",
+      "group": "adverbial"
+    },
+    "no": {
+      "japanese": "の",
+      "role": "possessive / nominalizer",
+      "color": "#999999",
+      "group": "case"
+    },
+    "he": {
+      "japanese": "へ",
+      "role": "toward / direction",
+      "color": "#6aa84f",
+      "group": "case"
+    },
+    "yo": {
+      "japanese": "よ",
+      "role": "emphasis / assertion",
+      "color": "#cc6699",
+      "group": "sentence-final"
+    },
+    "ne": {
+      "japanese": "ね",
+      "role": "confirmation / agreement",
+      "color": "#cc6699",
+      "group": "sentence-final"
+    },
+    "ka": {
+      "japanese": "か",
+      "role": "question marker",
+      "color": "#cc6699",
+      "group": "sentence-final"
+    },
+    "na": {
+      "japanese": "な",
+      "role": "prohibition / exclamation",
+      "color": "#cc6699",
+      "group": "sentence-final"
+    },
+    "ze": {
+      "japanese": "ぜ",
+      "role": "masculine emphasis",
+      "color": "#cc6699",
+      "group": "sentence-final"
+    }
+  },
+  "colorGroups": {
+    "case": "Grammatical case markers (wa, ga, o, ni, de, no, he)",
+    "range": "Range/source particles (kara, made)",
+    "conjunctive": "Conjunctive particles (to)",
+    "adverbial": "Adverbial particles (mo)",
+    "sentence-final": "Sentence-final particles (yo, ne, ka, na, ze)"
+  }
+}

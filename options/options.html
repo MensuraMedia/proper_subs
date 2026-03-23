@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProperSubs — Options</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>ProperSubs Options</h1>
+
+  <!-- LLM Configuration -->
+  <section>
+    <h2>LLM Provider</h2>
+
+    <div class="field">
+      <label for="provider">Provider</label>
+      <select id="provider">
+        <option value="groq">Groq (recommended — fastest)</option>
+        <option value="openai">OpenAI</option>
+        <option value="anthropic">Claude (Anthropic)</option>
+        <option value="gemini">Gemini (Google)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="api-key">API Key</label>
+      <input type="password" id="api-key" placeholder="Paste your API key here">
+      <p class="hint">Your key is stored locally and never sent anywhere except the selected provider.</p>
+    </div>
+
+    <div class="field">
+      <label for="model">Model Override <span class="optional">(optional)</span></label>
+      <input type="text" id="model" placeholder="Leave blank for default">
+      <p class="hint">Defaults: Groq = llama-3.3-70b-versatile, OpenAI = gpt-4o-mini, Claude = claude-sonnet-4-20250514, Gemini = gemini-2.0-flash</p>
+    </div>
+
+    <div class="field">
+      <label for="transform-mode">Transform Mode</label>
+      <select id="transform-mode">
+        <option value="llm">LLM (requires API key)</option>
+        <option value="offline">Offline (kuromoji.js — no API needed)</option>
+      </select>
+    </div>
+
+    <button id="btn-test" class="btn">Test Connection</button>
+    <div id="test-result" class="test-result"></div>
+  </section>
+
+  <!-- Display Settings -->
+  <section>
+    <h2>Display</h2>
+
+    <div class="field">
+      <label for="display-mode">Display Mode</label>
+      <select id="display-mode">
+        <option value="replace">Replace (structured English only)</option>
+        <option value="dual">Dual (Japanese + structured English)</option>
+        <option value="overlay">Overlay (keep original, add structured below)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Particle Color Coding</label>
+      <label class="checkbox">
+        <input type="checkbox" id="particle-colors" checked>
+        <span>Highlight particles with colors (wa=blue, o=red, ni=green, etc.)</span>
+      </label>
+    </div>
+
+    <div class="field">
+      <label for="font-size">Font Size: <span id="font-size-val">100</span>%</label>
+      <input type="range" id="font-size" min="50" max="200" value="100" step="5">
+    </div>
+
+    <div class="field">
+      <label for="opacity">Opacity: <span id="opacity-val">100</span>%</label>
+      <input type="range" id="opacity" min="20" max="100" value="100" step="5">
+    </div>
+
+    <div class="field">
+      <label for="position-offset">Position Offset: <span id="position-offset-val">0</span>px</label>
+      <input type="range" id="position-offset" min="-100" max="100" value="0" step="5">
+    </div>
+
+    <div class="field">
+      <label for="timing-offset">Timing Offset: <span id="timing-offset-val">0</span>ms</label>
+      <input type="range" id="timing-offset" min="-500" max="500" value="0" step="50">
+    </div>
+
+    <div class="field">
+      <label>Auto-pause</label>
+      <label class="checkbox">
+        <input type="checkbox" id="auto-pause">
+        <span>Pause video on each new structured line</span>
+      </label>
+    </div>
+  </section>
+
+  <!-- Site Configuration -->
+  <section>
+    <h2>Site Configuration</h2>
+
+    <div class="field">
+      <label for="custom-selectors">Custom CSS Selectors <span class="optional">(optional)</span></label>
+      <input type="text" id="custom-selectors" placeholder=".my-subtitle-class, #custom-caption">
+      <p class="hint">Comma-separated CSS selectors for subtitle elements on unsupported sites.</p>
+    </div>
+
+    <div class="field">
+      <label>Debug Mode</label>
+      <label class="checkbox">
+        <input type="checkbox" id="debug-mode">
+        <span>Log every captured cue to the browser console</span>
+      </label>
+    </div>
+  </section>
+
+  <!-- Particle Reference -->
+  <section>
+    <h2>Particle Reference</h2>
+    <table>
+      <thead>
+        <tr><th>Particle</th><th>Japanese</th><th>Role</th><th>Color</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>wa</td><td>は</td><td>topic marker</td><td><span class="swatch" style="background:#5b9bd5"></span></td></tr>
+        <tr><td>ga</td><td>が</td><td>subject marker</td><td><span class="swatch" style="background:#5b9bd5"></span></td></tr>
+        <tr><td>o</td><td>を</td><td>object marker</td><td><span class="swatch" style="background:#e06666"></span></td></tr>
+        <tr><td>ni</td><td>に</td><td>direction / time</td><td><span class="swatch" style="background:#6aa84f"></span></td></tr>
+        <tr><td>de</td><td>で</td><td>location / means</td><td><span class="swatch" style="background:#d4a017"></span></td></tr>
+        <tr><td>kara</td><td>から</td><td>from / because</td><td><span class="swatch" style="background:#b07cd8"></span></td></tr>
+        <tr><td>made</td><td>まで</td><td>until</td><td><span class="swatch" style="background:#b07cd8"></span></td></tr>
+        <tr><td>to</td><td>と</td><td>and / with</td><td><span class="swatch" style="background:#e69138"></span></td></tr>
+        <tr><td>mo</td><td>も</td><td>also / too</td><td><span class="swatch" style="background:#5b9bd5"></span></td></tr>
+        <tr><td>no</td><td>の</td><td>possessive</td><td><span class="swatch" style="background:#999"></span></td></tr>
+        <tr><td>yo</td><td>よ</td><td>emphasis</td><td><span class="swatch" style="background:#cc6699"></span></td></tr>
+        <tr><td>ne</td><td>ね</td><td>confirmation</td><td><span class="swatch" style="background:#cc6699"></span></td></tr>
+        <tr><td>ka</td><td>か</td><td>question</td><td><span class="swatch" style="background:#cc6699"></span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="save-bar">
+    <span id="save-status"></span>
+    <button id="btn-save" class="btn primary">Save Settings</button>
+  </div>
+</div>
+
+<script src="options.js"></script>
+</body>
+</html>

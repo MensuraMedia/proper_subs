@@ -1,0 +1,83 @@
+/* ── ProperSubs Subtitle Overlay ───────────────────────────────────────── */
+
+.propersubs-overlay {
+  position: fixed;
+  z-index: 2147483647;
+  text-align: center;
+  pointer-events: none;
+  font-family: 'Segoe UI', 'Noto Sans', Arial, sans-serif;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.7);
+  color: #fff;
+  line-height: 1.5;
+  padding: 4px 8px;
+}
+
+.propersubs-line {
+  display: inline-block;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 2px 10px;
+  border-radius: 2px;
+}
+
+.propersubs-particle {
+  font-weight: 700;
+  text-shadow: 0 0 6px currentColor;
+}
+
+/* ── Dual mode ────────────────────────────────────────────────────────── */
+
+.propersubs-dual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.propersubs-original {
+  font-size: 0.85em;
+  opacity: 0.7;
+  color: #ccc;
+}
+
+.propersubs-structured {
+  font-size: 1em;
+  color: #fff;
+}
+
+/* ── Click-to-define (future) ─────────────────────────────────────────── */
+
+.propersubs-word {
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background 0.15s;
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+.propersubs-word:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Anki button (future) ─────────────────────────────────────────────── */
+
+.propersubs-anki-btn {
+  position: absolute;
+  right: -28px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: #4ecca3;
+  border: 1px solid #4ecca3;
+  border-radius: 2px;
+  font-size: 10px;
+  padding: 2px 4px;
+  cursor: pointer;
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.propersubs-overlay:hover .propersubs-anki-btn,
+.propersubs-dual:hover .propersubs-anki-btn {
+  opacity: 1;
+}

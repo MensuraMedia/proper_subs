@@ -1,0 +1,137 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  width: 300px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #1a1a1a;
+  color: #e0e0e0;
+}
+
+.popup { padding: 16px; }
+
+/* ── Header ───────────────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+h1 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #d4a017;
+}
+
+/* ── Toggle switch ────────────────────────────────────────────────────── */
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+}
+.toggle.small { width: 34px; height: 18px; }
+
+.toggle input { opacity: 0; width: 0; height: 0; }
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #333;
+  border-radius: 22px;
+  transition: 0.2s;
+}
+
+.slider::before {
+  content: '';
+  position: absolute;
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background: #888;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+
+.toggle.small .slider::before {
+  height: 12px;
+  width: 12px;
+}
+
+input:checked + .slider { background: #d4a017; }
+input:checked + .slider::before {
+  background: #fff;
+  transform: translateX(18px);
+}
+.toggle.small input:checked + .slider::before { transform: translateX(16px); }
+
+/* ── Status ───────────────────────────────────────────────────────────── */
+.status {
+  font-size: 12px;
+  padding: 6px 10px;
+  background: #252525;
+  border-left: 3px solid #555;
+  margin-bottom: 12px;
+}
+.status.active { border-left-color: #4ecca3; color: #4ecca3; }
+.status.inactive { border-left-color: #666; color: #666; }
+
+/* ── Controls ─────────────────────────────────────────────────────────── */
+.controls { margin-bottom: 12px; }
+
+.control-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.control-row label {
+  font-size: 13px;
+  color: #999;
+}
+
+select {
+  background: #252525;
+  color: #e0e0e0;
+  border: 1px solid #3a3a3a;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 0;
+}
+
+/* ── Last cue ─────────────────────────────────────────────────────────── */
+.last-cue {
+  font-size: 11px;
+  color: #666;
+  min-height: 18px;
+  padding: 6px 0;
+  word-break: break-all;
+  transition: color 0.2s;
+}
+.last-cue.success { color: #4ecca3; }
+.last-cue.error { color: #e06666; }
+
+/* ── Footer ───────────────────────────────────────────────────────────── */
+.footer {
+  display: flex;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #2a2a2a;
+}
+
+button {
+  flex: 1;
+  background: #252525;
+  color: #d4a017;
+  border: 1px solid #3a3a3a;
+  padding: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+button:hover { background: #333; }
+button:disabled { opacity: 0.5; cursor: wait; }

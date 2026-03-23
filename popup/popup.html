@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup">
+    <div class="header">
+      <h1>ProperSubs</h1>
+      <label class="toggle">
+        <input type="checkbox" id="toggle-enabled" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="status" id="status">Detecting site...</div>
+
+    <div class="controls">
+      <div class="control-row">
+        <label>Mode</label>
+        <select id="display-mode">
+          <option value="replace">Replace</option>
+          <option value="dual">Dual (JP + EN)</option>
+          <option value="overlay">Overlay</option>
+        </select>
+      </div>
+
+      <div class="control-row">
+        <label>Provider</label>
+        <select id="provider">
+          <option value="groq">Groq (fastest)</option>
+          <option value="openai">OpenAI</option>
+          <option value="anthropic">Claude</option>
+          <option value="gemini">Gemini</option>
+        </select>
+      </div>
+
+      <div class="control-row">
+        <label>Particles</label>
+        <label class="toggle small">
+          <input type="checkbox" id="particle-colors" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="last-cue" id="last-cue"></div>
+
+    <div class="footer">
+      <button id="btn-options">Options</button>
+      <button id="btn-test">Test API</button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
