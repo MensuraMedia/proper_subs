@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "ProperSubs — Structured Japanese Subtitles",
+  "name": "Proper Subs — Structured Japanese Subtitles",
   "version": "0.1.0",
-  "description": "Transforms Japanese anime subtitles into literal structured English preserving exact word order with visible particles for language learners.",
+  "description": "Transforms Japanese subtitles into literal structured English preserving exact word order with visible particles for language learners. Works with streaming content, videos, news, anime, and more.",
   "permissions": [
     "storage",
     "scripting",

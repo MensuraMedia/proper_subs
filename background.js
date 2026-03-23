@@ -72,7 +72,8 @@ async function handleTransform(tabId, text) {
     provider: 'groq',
     apiKey: '',
     model: '',
-    transformMode: 'llm'   // 'llm' | 'offline'
+    transformMode: 'llm',   // 'llm' | 'offline'
+    timeoutMs: 400
   });
 
   if (!settings.apiKey && settings.transformMode === 'llm') {
@@ -83,7 +84,8 @@ async function handleTransform(tabId, text) {
     provider: settings.provider,
     apiKey: settings.apiKey,
     model: settings.model,
-    mode: settings.transformMode
+    mode: settings.transformMode,
+    timeoutMs: settings.timeoutMs
   });
 
   setCache(tabId, text, structured);
@@ -117,7 +119,8 @@ chrome.runtime.onInstalled.addListener(details => {
       positionOffset: 0,
       timingOffset: 0,
       autoPause: false,
-      customSelectors: ''
+      customSelectors: '',
+      timeoutMs: 400
     });
   }
 });

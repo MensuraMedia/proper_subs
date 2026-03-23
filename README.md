@@ -1,10 +1,18 @@
-# ProperSubs — Structured Japanese Subtitles for Anime Immersion
+# Proper Subs — Structured Japanese Subtitles for Immersion Learning
 
-A free, open-source Chrome extension that transforms Japanese anime subtitles into **literal structured English** — preserving the exact Japanese word order with visible particles — so language learners can map spoken Japanese directly to meaning without mental reordering.
+> *See Japanese structure. Hear Japanese structure. Think in Japanese.*
+
+A free, open-source Chrome extension that transforms Japanese subtitles into **literal structured English** — preserving the exact Japanese word order with visible particles — so language learners can map spoken Japanese directly to meaning without mental reordering. Works with Japanese streaming content, videos, news, anime, and more.
+
+**The first tool to give Japanese learners perfect structural mapping during immersion.**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Chrome Extension](https://img.shields.io/badge/Chrome-Manifest%20V3-green.svg)](manifest.json)
+[![Status](https://img.shields.io/badge/Status-Active%20Development-orange.svg)](#development-roadmap)
 
 ## The Problem
 
-When watching anime with English subtitles, the sentence structure is completely rearranged to sound natural in English. This forces your brain to constantly reorder words, breaking the direct connection between what you hear and what you read.
+When watching Japanese content with English subtitles, the sentence structure is completely rearranged to sound natural in English. This forces your brain to constantly reorder words, breaking the direct connection between what you hear and what you read.
 
 **Standard subtitle:**
 > I eat an apple every day.
@@ -109,9 +117,38 @@ Now when you hear 「私は」 your eyes see "I wa" at the exact same moment. Pe
 
 ### Transformation Modes
 
-**LLM Mode (Recommended)** — Sends each subtitle cue to the user's configured LLM with an optimized system prompt. Target latency: <400 ms (Groq recommended for speed). Caches translations per episode for instant replay.
+**LLM Mode (Recommended)** — Sends each subtitle cue to the user's configured LLM with the following precision-engineered system prompt (included verbatim as the default):
+
+```
+You are a Japanese → Literal Structured English converter for language learners.
+Rules (never break them):
+1. Preserve the EXACT Japanese word order — do not naturalize or reorder anything.
+2. After each English word, immediately insert the original Japanese particle
+   exactly as it appears in the sentence (wa, ga, o, ni, de, kara, to, mo, no, etc.).
+3. Drop any English words that have no Japanese equivalent (is/are, a/the, etc.).
+4. Keep punctuation, timing, and line breaks identical.
+5. Output ONLY the structured line — nothing else.
+
+Example:
+Input: 私はリンゴを毎日食べます。
+Output: I wa apple o every day eat.
+```
+
+Target latency: <400 ms (Groq recommended for speed). Caches translations per episode for instant replay.
+
+**Timeout Fallback** — If the LLM response exceeds the latency threshold (configurable, default 400 ms), the extension displays `[ inaudible ]` as a placeholder instead of showing stale or delayed text. This keeps the subtitle stream flowing naturally rather than displaying a translation that's out of sync with the audio. Cached translations from previous viewings bypass this entirely.
 
 **Offline Mode** — Uses bundled kuromoji.js tokenizer to segment Japanese text, then maps each morpheme to English via JMdict/EN glossary. Less accurate on idioms but works without internet and costs nothing.
+
+### More Examples
+
+| Japanese Input | Structured English Output |
+|---|---|
+| 私はリンゴを食べます。 | I **wa** apple **o** eat. |
+| 彼女が学校に走って行きました | She **ga** school **ni** running went |
+| この本はとても面白いです | This book **wa** very interesting |
+| 明日から東京で働きます | Tomorrow **kara** Tokyo **de** work |
+| 友達と映画を見に行った | Friend **to** movie **o** see **ni** went |
 
 ## Supported Sites
 
@@ -176,15 +213,30 @@ cd proper_subs
 2. Enable **Developer mode** (top right)
 3. Click **Load unpacked**
 4. Select the `proper-subs/` directory
-5. Navigate to any supported streaming site and play anime with Japanese subtitles
+5. Navigate to any supported streaming site and play content with Japanese subtitles
 
 ### API Key Setup
 
-1. Click the ProperSubs extension icon → **Options**
+The LLM transformation mode requires an API key from one of the supported providers. The offline mode works without any key.
+
+**Getting an API key:**
+
+| Provider | Signup | Free Tier |
+|----------|--------|-----------|
+| **Groq** (recommended) | [console.groq.com](https://console.groq.com) | Generous free tier |
+| Anthropic (Claude) | [console.anthropic.com](https://console.anthropic.com) | Pay per token |
+| OpenAI | [platform.openai.com](https://platform.openai.com) | Pay per token |
+| Google (Gemini) | [aistudio.google.com](https://aistudio.google.com) | Free tier available |
+
+**Configuring the extension:**
+
+1. Click the Proper Subs extension icon → **Options**
 2. Select your LLM provider (Groq recommended for speed)
 3. Paste your API key
 4. Choose display preferences (dual mode, particle colors, font size)
 5. Start watching — subtitles transform automatically
+
+Your API key is stored locally in `chrome.storage.local` and is never sent anywhere except the provider's own API endpoint.
 
 ### Recommended LLM Providers
 
@@ -210,7 +262,7 @@ cd proper_subs
 
 This extension is built for **AJATT (All Japanese All The Time)** and **Refold** method learners who:
 
-- Do heavy anime immersion listening
+- Do heavy immersion listening (streaming, videos, news, anime, etc.)
 - Want to understand Japanese sentence structure intuitively
 - Are frustrated that English subtitles hide the real word order
 - Want to see particles (wa, ga, o, ni) in context as they hear them
@@ -224,6 +276,25 @@ This extension is built for **AJATT (All Japanese All The Time)** and **Refold**
 - **Graceful degradation** — fallback to polling if MutationObserver is blocked
 - **Configurable selectors** — users can add CSS selectors for new streaming sites
 
+## How Particles Work
+
+Japanese particles are function words that mark the grammatical role of each word in a sentence. They are the key to understanding Japanese sentence structure:
+
+| Particle | Function | Example |
+|----------|----------|---------|
+| **wa** (は) | Topic marker — "as for X" | I **wa** → "As for me" |
+| **ga** (が) | Subject marker | She **ga** → "She (is the one who)" |
+| **o** (を) | Direct object marker | Apple **o** → "Apple (is what I)" |
+| **ni** (に) | Direction/target/time | School **ni** → "To school" |
+| **de** (で) | Location of action/means | Tokyo **de** → "In/at Tokyo" |
+| **kara** (から) | Starting point — "from" | Tomorrow **kara** → "From tomorrow" |
+| **to** (と) | "With" / quotation | Friend **to** → "With friend" |
+| **mo** (も) | "Also/too" | I **mo** → "I also" |
+| **no** (の) | Possessive / connector | Japan **no** → "Japan's" |
+| **e** (へ) | Direction — "toward" | Home **e** → "Toward home" |
+
+By seeing these particles inline with English words in Japanese word order, your brain learns to parse Japanese structure naturally during immersion.
+
 ## License
 
 MIT — Free and open source. No ads, no tracking, no premium tier.
@@ -231,3 +302,14 @@ MIT — Free and open source. No ads, no tracking, no premium tier.
 ## Contributing
 
 Contributions welcome. See the development roadmap above for current priorities. The `.claude/` directory contains AI agent definitions for automated QA and testing.
+
+## Acknowledgements
+
+- [kuromoji.js](https://github.com/takuyaa/kuromoji.js) — Japanese morphological analyzer (offline mode)
+- [JMdict](https://www.edrdg.org/jmdict/j_jmdict.html) — Japanese-English dictionary project
+- [Jisho.org](https://jisho.org) — Japanese dictionary for click-to-define lookups
+- The AJATT, Refold, and immersion language-learning communities for proving that immersion works
+
+---
+
+*Proper Subs is built by [MensuraMedia](https://github.com/MensuraMedia) — making Japanese immersion learning accessible to everyone.*

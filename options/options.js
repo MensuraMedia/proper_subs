@@ -28,22 +28,29 @@ chrome.storage.sync.get(DEFAULTS, settings => {
   $('display-mode').value = settings.displayMode;
   $('particle-colors').checked = settings.particleColors;
   $('font-size').value = settings.fontSize;
-  $('font-size-val').textContent = settings.fontSize;
+  $('font-size-val').textContent = settings.fontSize + '%';
   $('opacity').value = settings.opacity;
-  $('opacity-val').textContent = settings.opacity;
+  $('opacity-val').textContent = settings.opacity + '%';
   $('position-offset').value = settings.positionOffset;
-  $('position-offset-val').textContent = settings.positionOffset;
+  $('position-offset-val').textContent = settings.positionOffset + 'px';
   $('timing-offset').value = settings.timingOffset;
-  $('timing-offset-val').textContent = settings.timingOffset;
+  $('timing-offset-val').textContent = settings.timingOffset + 'ms';
   $('auto-pause').checked = settings.autoPause;
   $('custom-selectors').value = settings.customSelectors;
   $('debug-mode').checked = settings.debugMode;
 });
 
 // ── Range slider live labels ─────────────────────────────────────────────
-['font-size', 'opacity', 'position-offset', 'timing-offset'].forEach(id => {
+const RANGE_UNITS = {
+  'font-size': '%',
+  'opacity': '%',
+  'position-offset': 'px',
+  'timing-offset': 'ms'
+};
+
+Object.entries(RANGE_UNITS).forEach(([id, unit]) => {
   $(id).addEventListener('input', e => {
-    $(`${id}-val`).textContent = e.target.value;
+    $(`${id}-val`).textContent = e.target.value + unit;
   });
 });
 

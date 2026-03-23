@@ -1,15 +1,32 @@
+/* ── ProperSubs Popup — Dark Amber Theme ──────────────────────────────── */
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-base: #0e0e0e;
+  --bg-surface: #161616;
+  --bg-raised: #1e1e1e;
+  --border: #2a2a2a;
+  --text-primary: #e0e0e0;
+  --text-secondary: #888;
+  --text-muted: #555;
+  --accent: #d4a017;
+  --accent-hover: #b88913;
+  --success: #4ecca3;
+  --error: #e06666;
+}
 
 body {
   width: 300px;
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  background: #1a1a1a;
-  color: #e0e0e0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
 }
 
 .popup { padding: 16px; }
 
-/* ── Header ───────────────────────────────────────────────────────────── */
+/* ── Header ──────────────────────────────────────────────────────────── */
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -18,18 +35,21 @@ body {
 }
 
 h1 {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
-  color: #d4a017;
+  color: var(--accent);
+  letter-spacing: 0.5px;
 }
 
-/* ── Toggle switch ────────────────────────────────────────────────────── */
+/* ── Toggle switch ───────────────────────────────────────────────────── */
+
 .toggle {
   position: relative;
   display: inline-block;
   width: 40px;
   height: 22px;
 }
+
 .toggle.small { width: 34px; height: 18px; }
 
 .toggle input { opacity: 0; width: 0; height: 0; }
@@ -38,7 +58,8 @@ h1 {
   position: absolute;
   cursor: pointer;
   inset: 0;
-  background: #333;
+  background: #252525;
+  border: 1px solid var(--border);
   border-radius: 22px;
   transition: 0.2s;
 }
@@ -46,11 +67,11 @@ h1 {
 .slider::before {
   content: '';
   position: absolute;
-  height: 16px;
-  width: 16px;
+  height: 14px;
+  width: 14px;
   left: 3px;
   bottom: 3px;
-  background: #888;
+  background: var(--text-muted);
   border-radius: 50%;
   transition: 0.2s;
 }
@@ -60,78 +81,121 @@ h1 {
   width: 12px;
 }
 
-input:checked + .slider { background: #d4a017; }
+input:checked + .slider {
+  background: rgba(212, 160, 23, 0.25);
+  border-color: var(--accent);
+}
+
 input:checked + .slider::before {
-  background: #fff;
+  background: var(--accent);
   transform: translateX(18px);
 }
-.toggle.small input:checked + .slider::before { transform: translateX(16px); }
 
-/* ── Status ───────────────────────────────────────────────────────────── */
-.status {
-  font-size: 12px;
-  padding: 6px 10px;
-  background: #252525;
-  border-left: 3px solid #555;
-  margin-bottom: 12px;
+.toggle.small input:checked + .slider::before {
+  transform: translateX(16px);
 }
-.status.active { border-left-color: #4ecca3; color: #4ecca3; }
-.status.inactive { border-left-color: #666; color: #666; }
 
-/* ── Controls ─────────────────────────────────────────────────────────── */
+/* ── Status ──────────────────────────────────────────────────────────── */
+
+.status {
+  font-size: 11px;
+  padding: 8px 10px;
+  background: var(--bg-surface);
+  border-left: 3px solid var(--border);
+  margin-bottom: 12px;
+  letter-spacing: 0.3px;
+}
+
+.status.active {
+  border-left-color: var(--success);
+  color: var(--success);
+}
+
+.status.inactive {
+  border-left-color: var(--text-muted);
+  color: var(--text-muted);
+}
+
+/* ── Controls ────────────────────────────────────────────────────────── */
+
 .controls { margin-bottom: 12px; }
 
 .control-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 6px 0;
-  border-bottom: 1px solid #2a2a2a;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
 }
 
 .control-row label {
-  font-size: 13px;
-  color: #999;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-weight: 600;
 }
 
 select {
-  background: #252525;
-  color: #e0e0e0;
-  border: 1px solid #3a3a3a;
+  background: var(--bg-raised);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
   padding: 4px 8px;
-  font-size: 12px;
-  border-radius: 0;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
 }
 
-/* ── Last cue ─────────────────────────────────────────────────────────── */
+select:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+/* ── Last cue ────────────────────────────────────────────────────────── */
+
 .last-cue {
   font-size: 11px;
-  color: #666;
+  color: var(--text-muted);
   min-height: 18px;
   padding: 6px 0;
   word-break: break-all;
   transition: color 0.2s;
+  font-family: 'Consolas', 'Courier New', monospace;
 }
-.last-cue.success { color: #4ecca3; }
-.last-cue.error { color: #e06666; }
 
-/* ── Footer ───────────────────────────────────────────────────────────── */
+.last-cue.success { color: var(--success); }
+.last-cue.error { color: var(--error); }
+
+/* ── Footer ──────────────────────────────────────────────────────────── */
+
 .footer {
   display: flex;
   gap: 8px;
-  padding-top: 8px;
-  border-top: 1px solid #2a2a2a;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
 }
 
 button {
   flex: 1;
-  background: #252525;
-  color: #d4a017;
-  border: 1px solid #3a3a3a;
-  padding: 6px;
-  font-size: 12px;
+  background: var(--bg-raised);
+  color: var(--accent);
+  border: 1px solid var(--border);
+  padding: 7px;
+  font-size: 11px;
   cursor: pointer;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s;
 }
-button:hover { background: #333; }
-button:disabled { opacity: 0.5; cursor: wait; }
+
+button:hover {
+  background: #252525;
+  border-color: #3a3a3a;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

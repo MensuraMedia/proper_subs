@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build output
+dist/
+build/
+
+# Environment & secrets
+.env
+.env.local
+*.key
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+*.swp
+*.swo
+*~
+
+# Chrome extension packaging
+*.pem
+*.crx
+*.zip
+
+# Kuromoji dictionaries (large, downloaded at build)
+lib/kuromoji/dict/
+
+# Debug logs
+*.log
