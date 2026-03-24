@@ -2,18 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <link rel="stylesheet" href="common.css">
-  <style>body{width:280px;padding:16px;}h1{font-size:14px;margin-bottom:8px;}p{font-size:12px;color:#888;}</style>
+  <title>Test 03 — LLM Provider Pipeline</title>
+  <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <h1 style="color:#d4a017" id="title"></h1>
+  <h1>Test 03 — LLM Provider Pipeline</h1>
   <p>This test runs in a full page. Click below to open it.</p>
-  <button id="open" style="margin-top:12px;width:100%">Open Test Page</button>
-  <script>
-    document.getElementById('title').textContent = document.title = 'Test ' + location.pathname.match(/test(\d+)/)?.[1];
-    document.getElementById('open').addEventListener('click', () => {
-      chrome.tabs.create({ url: chrome.runtime.getURL('index.html') });
-    });
-  </script>
+  <button id="open">Open Test Page</button>
+  <script src="popup.js"></script>
 </body>
 </html>
