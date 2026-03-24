@@ -235,6 +235,39 @@
       t.assert(JP_REGEX.test('ア'), 'Single katakana detected');
       t.assert(JP_REGEX.test('漢'), 'Single kanji detected');
 
+      // ── Detection system tests ──
+      log('\n--- Detection System ---');
+
+      // Video detection on this page (has simulated players but no real <video>)
+      const videos = document.querySelectorAll('video');
+      t.assert(videos.length === 0, 'No real <video> on test page', `${videos.length} found`);
+
+      // DOM subtitle selectors — should find our simulated elements
+      const subtitleSelectors = [
+        '.jw-captions', '.subtitle-container', '.vimond-text-track-display',
+        '.player-timedtext', '.rmp-content-subtitle'
+      ];
+      for (const sel of subtitleSelectors) {
+        const el = document.querySelector(sel);
+        t.assert(!!el, `Selector finds element: ${sel}`);
+      }
+
+      // Simulate a video element for detection testing
+      log('\n--- Video Element Detection ---');
+      const fakeVideo = document.createElement('video');
+      fakeVideo.setAttribute('src', 'https://example.com/test.m3u8');
+      fakeVideo.style.display = 'none';
+      document.body.appendChild(fakeVideo);
+
+      const videoCheck = document.querySelectorAll('video');
+      t.assert(videoCheck.length > 0, 'Injected <video> detected', `${videoCheck.length}`);
+
+      const hasSrc = !!(fakeVideo.src || fakeVideo.currentSrc);
+      t.assert(hasSrc, 'Video has src attribute', fakeVideo.src?.slice(0, 40));
+
+      // Clean up
+      fakeVideo.remove();
+
       t.summary();
     });
   </script>

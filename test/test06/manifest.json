@@ -3,7 +3,7 @@
   "name": "ProperSubs Test 06 — Timeout & Error Handling",
   "version": "1.0.0",
   "description": "Tests [inaudible] timeout fallback, AbortController behavior, and error capture across providers.",
-  "permissions": ["storage"],
+  "permissions": ["storage", "tabs"],
   "host_permissions": [
     "https://api.groq.com/*",
     "https://api.openai.com/*",

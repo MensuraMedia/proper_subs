@@ -3,7 +3,7 @@
   "name": "ProperSubs Test 03 — LLM Provider Pipeline",
   "version": "1.0.0",
   "description": "Tests transformation engine against all 4 LLM providers with multiple Japanese sentences.",
-  "permissions": ["storage"],
+  "permissions": ["storage", "tabs"],
   "host_permissions": [
     "https://api.groq.com/*",
     "https://api.openai.com/*",

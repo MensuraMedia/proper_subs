@@ -2,6 +2,29 @@
 
 const $ = id => document.getElementById(id);
 
+// ── Detection UI helpers ─────────────────────────────────────────────────
+function setDetect(id, on, detail) {
+  const chk = $(`chk-${id}`);
+  const lbl = $(`lbl-${id}`);
+  const det = $(`det-${id}`);
+
+  if (on) {
+    chk.classList.add('on');
+    lbl.classList.add('on');
+    if (det) {
+      det.classList.add('on');
+      if (detail) det.textContent = detail;
+    }
+  } else {
+    chk.classList.remove('on');
+    lbl.classList.remove('on');
+    if (det) {
+      det.classList.remove('on');
+      if (detail) det.textContent = detail;
+    }
+  }
+}
+
 // ── Load current settings ────────────────────────────────────────────────
 chrome.storage.sync.get({
   enabled: true,
@@ -19,32 +42,72 @@ chrome.storage.sync.get({
   $('particle-colors').checked = settings.particleColors;
 });
 
-// ── Query content script for status ──────────────────────────────────────
+// ── Query content script for detection status ────────────────────────────
 chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-  if (!tabs[0]) return;
+  if (!tabs[0]) {
+    setDetect('video', false, 'no tab');
+    return;
+  }
 
   chrome.tabs.sendMessage(tabs[0].id, { type: 'GET_STATUS' }, response => {
-    const status = $('status');
-    const lastCue = $('last-cue');
-
     if (chrome.runtime.lastError || !response) {
-      status.textContent = 'Not active on this page';
-      status.classList.add('inactive');
+      // Content script not loaded on this page
+      setDetect('video', false, 'not active');
+      setDetect('stream', false, '--');
+      setDetect('audio', false, '--');
+      setDetect('subs', false, '--');
+      setDetect('convert', false, 'planned');
       return;
     }
 
+    // Site badge
     if (response.site) {
-      status.textContent = `Connected: ${response.site.name}`;
-      status.classList.add('active');
-    } else if (response.hasSubtitleElement) {
-      status.textContent = 'Subtitle element found';
-      status.classList.add('active');
-    } else {
-      status.textContent = 'Waiting for subtitles...';
+      const badge = $('site-badge');
+      badge.textContent = response.site.name;
+      badge.style.display = 'inline-block';
     }
 
+    // Detection results
+    const d = response.detection;
+    if (d) {
+      // Video page
+      setDetect('video', d.videoPage, d.videoPage ? 'found' : 'none');
+
+      // Video stream
+      if (d.videoStream && d.videoInfo) {
+        const v = d.videoInfo;
+        const res = v.width && v.height ? `${v.width}x${v.height}` : 'loading';
+        setDetect('stream', true, res);
+      } else {
+        setDetect('stream', false, d.videoPage ? 'no source' : '--');
+      }
+
+      // Audio stream
+      setDetect('audio', d.audioStream, d.audioStream ? 'detected' : 'none');
+
+      // Subtitle stream
+      if (d.subtitleStream) {
+        let detail = d.subtitleType || 'found';
+        if (d.subtitleType === 'dom-overlay') {
+          detail = 'DOM overlay';
+        } else if (d.subtitleType === 'text-track') {
+          detail = `track (${d.trackInfo?.count || '?'})`;
+          if (d.trackInfo?.activeLabel) {
+            detail += ` [${d.trackInfo.activeLabel}]`;
+          }
+        }
+        setDetect('subs', true, detail);
+      } else {
+        setDetect('subs', false, d.videoPage ? 'not found' : '--');
+      }
+
+      // Audio conversion (future)
+      setDetect('convert', d.audioConversion, d.audioConversion ? 'active' : 'planned');
+    }
+
+    // Last cue
     if (response.lastCue) {
-      lastCue.textContent = response.lastCue;
+      $('last-cue').textContent = response.lastCue;
     }
   });
 });
@@ -57,7 +120,6 @@ $('toggle-enabled').addEventListener('change', e => {
   chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
     if (tabs[0]) {
       chrome.tabs.sendMessage(tabs[0].id, { type: 'TOGGLE', enabled }, () => {
-        // Ignore errors if content script not loaded on this tab
         if (chrome.runtime.lastError) return;
       });
     }

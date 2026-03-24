@@ -19,7 +19,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["lib/site-detect.js", "lib/display.js", "content.js"],
+      "js": ["lib/site-detect.js", "lib/detector.js", "lib/display.js", "content.js"],
       "css": ["styles/subtitle-overlay.css"],
       "run_at": "document_idle"
     }

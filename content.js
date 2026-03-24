@@ -309,16 +309,23 @@
   // ── Listen for messages from popup/background ──────────────────────────
   chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     switch (msg.type) {
-      case 'GET_STATUS':
+      case 'GET_STATUS': {
+        // Run full media detection
+        const detection = typeof ProperSubsDetector !== 'undefined'
+          ? ProperSubsDetector.detect()
+          : null;
+
         sendResponse({
           enabled: enabled,
           hasSubtitleElement: !!subtitleElement,
           lastCue: lastCueText,
           site: typeof ProperSubsSiteDetect !== 'undefined'
             ? ProperSubsSiteDetect.detect()
-            : null
+            : null,
+          detection: detection
         });
         break;
+      }
 
       case 'TOGGLE':
         enabled = msg.enabled;

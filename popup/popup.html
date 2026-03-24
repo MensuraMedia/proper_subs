@@ -14,8 +14,39 @@
       </label>
     </div>
 
-    <div class="status" id="status">Detecting site...</div>
+    <div id="site-badge" class="site-badge" style="display:none"></div>
 
+    <!-- Detection Checklist -->
+    <div class="section-label">Detection Status</div>
+    <div class="detection-list">
+      <div class="detect-row">
+        <div class="detect-check" id="chk-video">&#x2713;</div>
+        <span class="detect-label" id="lbl-video">Video Page</span>
+        <span class="detect-detail" id="det-video">--</span>
+      </div>
+      <div class="detect-row">
+        <div class="detect-check" id="chk-stream">&#x2713;</div>
+        <span class="detect-label" id="lbl-stream">Video Stream</span>
+        <span class="detect-detail" id="det-stream">--</span>
+      </div>
+      <div class="detect-row">
+        <div class="detect-check" id="chk-audio">&#x2713;</div>
+        <span class="detect-label" id="lbl-audio">Audio Stream</span>
+        <span class="detect-detail" id="det-audio">--</span>
+      </div>
+      <div class="detect-row">
+        <div class="detect-check" id="chk-subs">&#x2713;</div>
+        <span class="detect-label" id="lbl-subs">Subtitle Stream</span>
+        <span class="detect-detail" id="det-subs">--</span>
+      </div>
+      <div class="detect-row">
+        <div class="detect-check" id="chk-convert">&#x2713;</div>
+        <span class="detect-label" id="lbl-convert">Audio Conversion</span>
+        <span class="detect-detail" id="det-convert">planned</span>
+      </div>
+    </div>
+
+    <!-- Controls -->
     <div class="controls">
       <div class="control-row">
         <label>Mode</label>

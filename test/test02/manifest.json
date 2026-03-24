@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "ProperSubs Test 02 — Subtitle Capture Simulation",
+  "name": "ProperSubs Test 02 — Subtitle Capture & Detection",
   "version": "1.0.0",
-  "description": "Tests MutationObserver subtitle capture across different DOM structures matching real streaming sites.",
-  "permissions": ["storage"],
+  "description": "Tests MutationObserver subtitle capture and media detection across streaming site DOM patterns.",
+  "permissions": ["storage", "tabs"],
   "action": {
     "default_popup": "popup.html"
   }

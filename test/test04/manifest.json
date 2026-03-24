@@ -3,7 +3,7 @@
   "name": "ProperSubs Test 04 — Display & Particle Coloring",
   "version": "1.0.0",
   "description": "Tests subtitle overlay rendering, particle color-coding, dual mode, positioning, and XSS safety.",
-  "permissions": ["storage"],
+  "permissions": ["storage", "tabs"],
   "action": {
     "default_popup": "popup.html"
   }

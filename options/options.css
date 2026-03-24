@@ -1,22 +1,21 @@
-/* ── ProperSubs Options — Dark Amber Theme ────────────────────────────── */
-/* Theme: dark bg, amber/gold accents, gray surfaces                      */
-/* Ref: -universal-themes (gray-yellow-palette, dark-orange-ui-kit)       */
+/* ── ProperSubs Options — Yellow/Gray/Navy Theme ─────────────────────── */
+/* Ref: -universal-themes/ui-kit-yellow-gray-yello.jpg                    */
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg-base: #0e0e0e;
-  --bg-surface: #161616;
-  --bg-raised: #1e1e1e;
-  --bg-input: #141414;
-  --border: #2a2a2a;
-  --border-focus: #d4a017;
-  --text-primary: #e0e0e0;
-  --text-secondary: #888;
-  --text-muted: #555;
-  --accent: #d4a017;
-  --accent-hover: #b88913;
-  --accent-dim: rgba(212, 160, 23, 0.12);
+  --bg-base: #1a1d2e;
+  --bg-surface: #222538;
+  --bg-raised: #2a2d42;
+  --bg-input: #1e2133;
+  --border: #333654;
+  --border-focus: #f5a623;
+  --text-primary: #e8e8ec;
+  --text-secondary: #9698a6;
+  --text-muted: #5d5f72;
+  --accent: #f5a623;
+  --accent-hover: #e09518;
+  --accent-dim: rgba(245, 166, 35, 0.12);
   --success: #4ecca3;
   --error: #e06666;
 }
