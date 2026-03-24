@@ -8,58 +8,31 @@
 <body>
   <h1>Manifest &amp; File Integrity</h1>
   <p class="test-id">test01</p>
-  <div class="description">
-    Validates the main extension's manifest.json structure: MV3 compliance,
-    minimal permissions, correct host_permissions scoping, all referenced
-    files declared, and no unused permissions.
-    <br><strong>How to use:</strong> Load this folder as unpacked extension in chrome://extensions, then click the extension icon to open this popup.
-    Paste the contents of the main extension's manifest.json below and click Run.
-  </div>
-
-  <div class="sim-area">
-    <div class="sim-label">Paste main extension manifest.json here</div>
-    <textarea id="manifest-input" style="width:100%;height:120px;background:#141414;color:#e0e0e0;border:1px solid #2a2a2a;padding:8px;font-family:Consolas,monospace;font-size:11px;resize:vertical;"></textarea>
-  </div>
 
   <button id="btn-run">Run Tests</button>
   <div id="results"></div>
 
   <script src="common.js"></script>
   <script>
-    // Pre-fill with the expected manifest for convenience
-    const EXPECTED_MANIFEST = {
-      manifest_version: 3,
-      permissions: ['storage'],
-      host_permissions: [
-        'https://api.groq.com/*',
-        'https://api.openai.com/*',
-        'https://api.anthropic.com/*',
-        'https://generativelanguage.googleapis.com/*'
-      ],
-      expected_files: [
-        'background.js',
-        'content.js',
-        'lib/site-detect.js',
-        'lib/display.js',
-        'styles/subtitle-overlay.css',
-        'popup/popup.html',
-        'options/options.html',
-        'icons/icon-16.png',
-        'icons/icon-48.png',
-        'icons/icon-128.png'
-      ]
-    };
+    const EXPECTED_FILES = [
+      'background.js', 'content.js',
+      'lib/site-detect.js', 'lib/display.js',
+      'styles/subtitle-overlay.css',
+      'popup/popup.html', 'options/options.html',
+      'icons/icon-16.png', 'icons/icon-48.png', 'icons/icon-128.png'
+    ];
 
-    document.getElementById('btn-run').addEventListener('click', () => {
+    document.getElementById('btn-run').addEventListener('click', async () => {
       const t = new TestRunner();
-      const input = document.getElementById('manifest-input').value.trim();
 
+      // Load the main extension's manifest (bundled copy)
       let manifest;
       try {
-        manifest = JSON.parse(input);
-        t.pass('manifest.json is valid JSON');
+        const res = await fetch('target-manifest.json');
+        manifest = await res.json();
+        t.pass('manifest.json loaded and parsed');
       } catch (e) {
-        t.fail('manifest.json parse failed — paste valid JSON above', e.message);
+        t.fail('Failed to load target-manifest.json', e.message);
         t.summary();
         return;
       }
@@ -77,31 +50,31 @@
       // ── Content scripts ──
       const cs = manifest.content_scripts?.[0];
       t.assert(cs, 'Content scripts block exists');
-      t.assert(cs?.js?.includes('content.js'), 'Content script includes content.js');
-      t.assert(cs?.js?.includes('lib/display.js'), 'Content script includes lib/display.js');
-      t.assert(cs?.js?.includes('lib/site-detect.js'), 'Content script includes lib/site-detect.js');
-      t.assert(cs?.css?.includes('styles/subtitle-overlay.css'), 'Content script includes overlay CSS');
+      t.assert(cs?.js?.includes('content.js'), 'Includes content.js');
+      t.assert(cs?.js?.includes('lib/display.js'), 'Includes lib/display.js');
+      t.assert(cs?.js?.includes('lib/site-detect.js'), 'Includes lib/site-detect.js');
+      t.assert(cs?.css?.includes('styles/subtitle-overlay.css'), 'Includes overlay CSS');
 
-      // ── Permissions — minimal ──
+      // ── Permissions ──
       const perms = manifest.permissions || [];
       t.assert(perms.includes('storage'), 'Has storage permission');
-      t.assert(!perms.includes('scripting'), 'No unused scripting permission');
-      t.assert(!perms.includes('activeTab'), 'No unused activeTab permission');
-      t.assert(!perms.includes('tabs'), 'No unused tabs permission');
-      t.assert(perms.length === 1, `Only 1 permission`, perms.join(', '));
+      t.assert(!perms.includes('scripting'), 'No unused scripting');
+      t.assert(!perms.includes('activeTab'), 'No unused activeTab');
+      t.assert(!perms.includes('tabs'), 'No unused tabs');
+      t.assert(perms.length === 1, 'Exactly 1 permission', perms.join(', '));
 
-      // ── Host permissions — scoped to LLM APIs ──
+      // ── Host permissions ──
       const hosts = manifest.host_permissions || [];
       t.assert(!hosts.includes('<all_urls>'), 'No <all_urls> in host_permissions');
-      t.assert(hosts.length >= 4, `${hosts.length} host permissions`, hosts.join(', '));
+      t.assert(hosts.length >= 4, `${hosts.length} host permissions`);
 
-      const expectedDomains = ['api.groq.com', 'api.openai.com', 'api.anthropic.com', 'generativelanguage.googleapis.com'];
-      for (const domain of expectedDomains) {
-        t.assert(hosts.some(h => h.includes(domain)), `Host includes ${domain}`);
+      const domains = ['api.groq.com', 'api.openai.com', 'api.anthropic.com', 'generativelanguage.googleapis.com'];
+      for (const d of domains) {
+        t.assert(hosts.some(h => h.includes(d)), `Host: ${d}`);
       }
 
       // ── Popup & Options ──
-      t.assert(manifest.action?.default_popup, 'Popup page declared', manifest.action?.default_popup);
+      t.assert(manifest.action?.default_popup, 'Popup declared', manifest.action?.default_popup);
       t.assert(manifest.options_ui?.page, 'Options page declared', manifest.options_ui?.page);
       t.assert(manifest.options_ui?.open_in_tab === true, 'Options opens in tab');
 
@@ -113,21 +86,21 @@
 
       // ── All expected files referenced ──
       const allRefs = [
-        ...(cs?.js || []),
-        ...(cs?.css || []),
+        ...(cs?.js || []), ...(cs?.css || []),
         manifest.background?.service_worker,
         manifest.action?.default_popup,
         manifest.options_ui?.page,
         ...Object.values(icons)
       ].filter(Boolean);
 
-      for (const f of EXPECTED_MANIFEST.expected_files) {
+      for (const f of EXPECTED_FILES) {
         t.assert(allRefs.includes(f), `References ${f}`);
       }
 
-      // ── Security checks ──
-      t.assert(!JSON.stringify(manifest).includes('unsafe-eval'), 'No unsafe-eval in CSP');
-      t.assert(!JSON.stringify(manifest).includes('unsafe-inline'), 'No unsafe-inline in CSP');
+      // ── Security ──
+      const raw = JSON.stringify(manifest);
+      t.assert(!raw.includes('unsafe-eval'), 'No unsafe-eval');
+      t.assert(!raw.includes('unsafe-inline'), 'No unsafe-inline');
 
       t.summary();
     });

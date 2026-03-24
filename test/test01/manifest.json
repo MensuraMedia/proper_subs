@@ -5,6 +5,6 @@
   "description": "Validates extension manifest structure, file references, and permission minimality.",
   "permissions": ["storage"],
   "action": {
-    "default_popup": "index.html"
+    "default_popup": "popup.html"
   }
 }
