@@ -64,7 +64,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
     if (response.site) {
       const badge = $('site-badge');
       badge.textContent = response.site.name;
-      badge.style.display = 'inline-block';
+      badge.classList.remove('hidden');
     }
 
     // Detection results
@@ -110,7 +110,12 @@ chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
       setDetect('convert', d.audioConversion, d.audioConversion ? (d.audioConversionEngine || 'active') : 'planned');
     }
 
-    // Last cue
+    // Capture info
+    const count = response.cueCount || 0;
+    const countEl = $('cue-count');
+    countEl.textContent = `${count} cue${count !== 1 ? 's' : ''} captured`;
+    if (count > 0) countEl.classList.add('active');
+
     if (response.lastCue) {
       $('last-cue').textContent = response.lastCue;
     }

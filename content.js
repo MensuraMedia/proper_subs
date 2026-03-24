@@ -14,6 +14,7 @@
   let enabled = true;
   let debugMode = false;
   let lastCueText = '';
+  let cueCount = 0;
   let observer = null;
   let bodyObserver = null;
   let pollInterval = null;
@@ -95,14 +96,21 @@
   function processCue(text) {
     if (!text || text === lastCueText) return;
     lastCueText = text;
+    cueCount++;
 
     if (debugMode) {
       console.log('[ProperSubs] Cue captured:', text);
       console.log('[ProperSubs] Is Japanese:', isJapanese(text));
     }
 
+    // Always show the captured cue as a passthrough overlay to prove
+    // capture is working — positioned on the lower end of the video frame
+    requestAnimationFrame(() => {
+      ProperSubsDisplay.renderPassthrough(subtitleElement, text);
+    });
+
     if (!isJapanese(text)) {
-      if (debugMode) console.log('[ProperSubs] Skipping non-Japanese cue');
+      if (debugMode) console.log('[ProperSubs] Skipping non-Japanese cue (passthrough shown)');
       return;
     }
 
@@ -301,6 +309,7 @@
           enabled: enabled,
           hasSubtitleElement: !!subtitleElement,
           lastCue: lastCueText,
+          cueCount: cueCount,
           site: typeof ProperSubsSiteDetect !== 'undefined'
             ? ProperSubsSiteDetect.detect()
             : null,

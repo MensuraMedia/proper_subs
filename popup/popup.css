@@ -178,6 +178,10 @@ input:checked + .slider::before {
 
 .site-badge {
   display: inline-block;
+}
+
+.site-badge.hidden {
+  display: none;
   font-size: 10px;
   padding: 2px 8px;
   background: var(--accent-dim);
@@ -231,16 +235,35 @@ select:focus {
   outline: none;
 }
 
-/* ── Last cue ────────────────────────────────────────────────────────── */
+/* ── Capture info ─────────────────────────────────────────────────────── */
+
+.capture-info {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.cue-count {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 4px;
+}
+
+.cue-count.active {
+  color: var(--accent);
+}
 
 .last-cue {
-  font-size: 11px;
-  color: var(--text-muted);
+  font-size: 12px;
+  color: var(--text-secondary);
   min-height: 18px;
-  padding: 6px 0;
   word-break: break-all;
-  transition: color 0.2s;
   font-family: 'Consolas', 'Courier New', monospace;
+  line-height: 1.4;
+  transition: color 0.2s;
 }
 
 .last-cue.success { color: var(--success); }
