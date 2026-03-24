@@ -83,26 +83,31 @@ chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
       }
 
       // Audio stream
-      setDetect('audio', d.audioStream, d.audioStream ? 'detected' : 'none');
+      if (d.audioStream) {
+        const confLabel = d.audioConfidence === 'confirmed' ? 'confirmed' : 'likely';
+        setDetect('audio', true, confLabel);
+      } else {
+        setDetect('audio', false, d.videoPage ? 'not detected' : '--');
+      }
 
       // Subtitle stream
       if (d.subtitleStream) {
-        let detail = d.subtitleType || 'found';
-        if (d.subtitleType === 'dom-overlay') {
+        let detail;
+        if (d.subtitleType === 'text-track') {
+          detail = 'track (' + (d.trackInfo?.count || '?') + ')';
+          if (d.trackInfo?.activeLabel) detail += ' [' + d.trackInfo.activeLabel + ']';
+        } else if (d.subtitleType && d.subtitleType !== 'dom-overlay') {
+          detail = d.subtitleSiteName ? d.subtitleSiteName + ' (' + d.subtitleType + ')' : d.subtitleType;
+        } else {
           detail = 'DOM overlay';
-        } else if (d.subtitleType === 'text-track') {
-          detail = `track (${d.trackInfo?.count || '?'})`;
-          if (d.trackInfo?.activeLabel) {
-            detail += ` [${d.trackInfo.activeLabel}]`;
-          }
         }
         setDetect('subs', true, detail);
       } else {
         setDetect('subs', false, d.videoPage ? 'not found' : '--');
       }
 
-      // Audio conversion (future)
-      setDetect('convert', d.audioConversion, d.audioConversion ? 'active' : 'planned');
+      // Audio conversion
+      setDetect('convert', d.audioConversion, d.audioConversion ? (d.audioConversionEngine || 'active') : 'planned');
     }
 
     // Last cue

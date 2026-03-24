@@ -45,29 +45,11 @@
   }
 
   // ── Subtitle element discovery ─────────────────────────────────────────
-  // Priority-ordered list of CSS selectors for known streaming sites.
-  // Users can add custom selectors via the options page.
-  const DEFAULT_SELECTORS = [
-    // Aniwave / 9anime / FastStream
-    '.jw-text-track-container',
-    '.jw-captions',
-    '.subtitle-container',
-    '.caption',
-    '.subtitle-line',
-    '.subtitles',
-    // FastStream specific
-    '[class*="subtitle"]',
-    '[class*="caption"]',
-    // Crunchyroll
-    '.vimond-text-track-display',
-    '[data-testid="vimond-subtitle"]',
-    // Netflix
-    '.player-timedtext',
-    '.player-timedtext-text-container',
-    // Generic HTML5 track rendering
-    '::cue',
-    'video::cue'
-  ];
+  // Selectors are sourced from ProperSubsSiteDetect to stay in sync with
+  // site-detect.js. Falls back to generic attribute selectors if unavailable.
+  const DEFAULT_SELECTORS = typeof ProperSubsSiteDetect !== 'undefined'
+    ? ProperSubsSiteDetect.getAllSelectors()
+    : ['[class*="subtitle"]', '[class*="caption"]'];
 
   function findSubtitleElement(customSelectors) {
     const selectors = [...DEFAULT_SELECTORS];
