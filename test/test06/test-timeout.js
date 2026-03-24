@@ -131,30 +131,72 @@ document.getElementById('btn-run').addEventListener('click', async () => {
   }
 
   // ── Test 7: Live timeout test (if API key provided) ──
+  // Builds the correct request for the selected provider
+  function buildRequest(provider, apiKey, signal) {
+    const text = '私はリンゴを食べます。';
+    const prompt = 'Translate to structured English with particles.';
+
+    if (provider === 'anthropic') {
+      return {
+        url: 'https://api.anthropic.com/v1/messages',
+        options: {
+          method: 'POST', signal,
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514', max_tokens: 50,
+            messages: [{ role: 'user', content: text }]
+          })
+        },
+        parseOutput: (data) => data?.content?.[0]?.text?.trim()
+      };
+    } else if (provider === 'gemini') {
+      return {
+        url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        options: {
+          method: 'POST', signal,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text }] }],
+            generationConfig: { maxOutputTokens: 50 }
+          })
+        },
+        parseOutput: (data) => data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
+      };
+    } else {
+      // OpenAI-compatible (groq, openai)
+      const urls = { groq: 'https://api.groq.com/openai/v1/chat/completions', openai: 'https://api.openai.com/v1/chat/completions' };
+      const models = { groq: 'llama-3.3-70b-versatile', openai: 'gpt-4o-mini' };
+      return {
+        url: urls[provider] || urls.groq,
+        options: {
+          method: 'POST', signal,
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+          body: JSON.stringify({
+            model: models[provider] || models.groq, max_tokens: 50,
+            messages: [{ role: 'user', content: text }]
+          })
+        },
+        parseOutput: (data) => data?.choices?.[0]?.message?.content?.trim()
+      };
+    }
+  }
+
   if (apiKey) {
     log('\n--- Live Timeout Test ---');
 
-    // Test with very short timeout — should get [inaudible]
-    const INAUDIBLE = '[ inaudible ]';
+    // Test with very short timeout — should get AbortError
     const controller1 = new AbortController();
-    const timeoutId1 = setTimeout(() => controller1.abort(), 50); // 50ms — will timeout
+    const timeoutId1 = setTimeout(() => controller1.abort(), 50);
+    const req1 = buildRequest(provider, apiKey, controller1.signal);
 
     const start1 = performance.now();
     try {
-      const apiUrl = provider === 'groq' ? 'https://api.groq.com/openai/v1/chat/completions' : 'https://api.openai.com/v1/chat/completions';
-      await fetch(apiUrl, {
-        method: 'POST',
-        signal: controller1.signal,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: provider === 'groq' ? 'llama-3.3-70b-versatile' : 'gpt-4o-mini',
-          messages: [{ role: 'user', content: '私はリンゴを食べます。' }],
-          max_tokens: 50
-        })
-      });
+      await fetch(req1.url, req1.options);
       clearTimeout(timeoutId1);
       const elapsed = (performance.now() - start1).toFixed(0);
       t.warn('50ms timeout did not fire — API was faster than expected', `${elapsed}ms`);
@@ -168,30 +210,21 @@ document.getElementById('btn-run').addEventListener('click', async () => {
     // Test with generous timeout — should succeed
     const controller2 = new AbortController();
     const timeoutId2 = setTimeout(() => controller2.abort(), 10000);
+    const req2 = buildRequest(provider, apiKey, controller2.signal);
+
     const start2 = performance.now();
     try {
-      const apiUrl = provider === 'groq' ? 'https://api.groq.com/openai/v1/chat/completions' : 'https://api.openai.com/v1/chat/completions';
-      const res = await fetch(apiUrl, {
-        method: 'POST',
-        signal: controller2.signal,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: provider === 'groq' ? 'llama-3.3-70b-versatile' : 'gpt-4o-mini',
-          messages: [{ role: 'user', content: '私はリンゴを食べます。' }],
-          max_tokens: 50
-        })
-      });
+      const res = await fetch(req2.url, req2.options);
       clearTimeout(timeoutId2);
       const elapsed = (performance.now() - start2).toFixed(0);
       if (res.ok) {
         const data = await res.json();
-        const output = data?.choices?.[0]?.message?.content?.trim();
-        t.pass(`Live 10s timeout → success`, `${elapsed}ms: ${output?.slice(0, 40)}`);
+        const output = req2.parseOutput(data);
+        t.pass(`Live 10s timeout → success (${provider})`, `${elapsed}ms: ${(output || '').slice(0, 40)}`);
       } else {
-        t.fail(`Live request failed`, `${res.status} (${elapsed}ms)`);
+        const err = await res.text();
+        t.fail(`Live request failed (${provider})`, `${res.status} (${elapsed}ms)`);
+        log(`Error body: ${err.slice(0, 200)}`);
       }
     } catch (e) {
       clearTimeout(timeoutId2);

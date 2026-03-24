@@ -123,9 +123,14 @@ async function callLLM(provider, apiKey, text, timeoutMs) {
 }
 
 // Validate output has expected particles
+// Matches particle as a standalone word anywhere in the output
 function validateOutput(output, expectedParticles) {
   const lower = output.toLowerCase();
-  const found = expectedParticles.filter(p => lower.includes(` ${p} `) || lower.includes(` ${p}.`) || lower.includes(` ${p},`) || lower.startsWith(`${p} `));
+  const found = expectedParticles.filter(p => {
+    // Match particle as a word boundary: space/start before, space/punctuation/end after
+    const regex = new RegExp('(?:^|\\s)' + p + '(?:\\s|[.,!?;]|$)', 'i');
+    return regex.test(lower);
+  });
   return { found, missing: expectedParticles.filter(p => !found.includes(p)) };
 }
 

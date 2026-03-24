@@ -8,17 +8,52 @@ body {
 
 h1 {
   font-size: 14px;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   color: #f5a623;
 }
 
 p {
   font-size: 12px;
   color: #9698a6;
+  margin-bottom: 12px;
 }
 
+/* Result summary */
+#results {
+  background: #222538;
+  border: 1px solid #333654;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: #9698a6;
+  min-height: 24px;
+}
+
+.result-icon {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.result-icon.pass { color: #4ecca3; }
+.result-icon.fail { color: #e06666; }
+
+.result-counts {
+  font-size: 13px;
+  color: #e8e8ec;
+  margin-bottom: 4px;
+}
+
+.rpass { color: #4ecca3; font-weight: 700; }
+.rfail { color: #e06666; font-weight: 700; }
+.rwarn { color: #e69138; font-weight: 700; }
+
+.result-meta {
+  font-size: 10px;
+  color: #5d5f72;
+}
+
+/* Button */
 #open {
-  margin-top: 12px;
   width: 100%;
   background: #2a2d42;
   color: #f5a623;

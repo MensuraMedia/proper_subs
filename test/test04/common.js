@@ -67,6 +67,21 @@ class TestRunner {
     // Set page title to reflect outcome
     const total = this.counts.pass + this.counts.fail;
     document.title = `${this.counts.fail === 0 ? '\u2714' : '\u2718'} ${this.counts.pass}/${total} — ${document.title}`;
+
+    // Persist results to storage so popup can display them
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      chrome.storage.local.set({
+        lastTestResult: {
+          pass: this.counts.pass,
+          fail: this.counts.fail,
+          warn: this.counts.warn,
+          total: total,
+          elapsed: elapsed,
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
     return this;
   }
 

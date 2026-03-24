@@ -87,9 +87,17 @@ document.getElementById('btn-run').addEventListener('click', () => {
 
   for (const xss of xssTests) {
     const escaped = escapeHtml(xss);
-    t.assert(!escaped.includes('<script'), `XSS blocked: script tag`, xss.slice(0, 30));
-    t.assert(!escaped.includes('onerror'), `XSS blocked: event handler`, xss.slice(0, 30));
-    t.assert(!escaped.includes('onclick'), `XSS blocked: onclick`, xss.slice(0, 30));
+    // escapeHtml converts < to &lt; and > to &gt; — that's what prevents
+    // execution. The text "onerror"/"onclick" still exists as plain text
+    // which is correct and safe (not parsed as attributes).
+    t.assert(!escaped.includes('<script'), `XSS blocked: script tag not parseable`, xss.slice(0, 30));
+    t.assert(!escaped.includes('<img'), `XSS blocked: img tag not parseable`, xss.slice(0, 30));
+    t.assert(!escaped.includes('<svg'), `XSS blocked: svg tag not parseable`, xss.slice(0, 30));
+
+    // Verify the angle brackets are properly escaped
+    if (xss.includes('<')) {
+      t.assert(escaped.includes('&lt;'), `XSS: < escaped to &lt;`, xss.slice(0, 30));
+    }
 
     // Render it — should be safe
     addRenderBox(renders, `XSS test: ${xss.slice(0, 25)}...`, colorizeParticles(xss));
