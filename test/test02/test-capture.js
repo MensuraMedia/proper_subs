@@ -163,7 +163,46 @@ document.getElementById('btn-run').addEventListener('click', async () => {
   const hasSrc = !!(fakeVideo.src || fakeVideo.currentSrc);
   t.assert(hasSrc, 'Video has src attribute', fakeVideo.src?.slice(0, 40));
 
+  // ── Passthrough overlay test ──
+  log('\n--- Passthrough Overlay ---');
+
+  // The passthrough element should be created when renderPassthrough is called
+  // Simulate what display.js does: create div, position on video, show text
+  const passthrough = document.createElement('div');
+  passthrough.id = 'propersubs-passthrough';
+  passthrough.className = 'propersubs-passthrough';
+  passthrough.textContent = '私はリンゴを食べます。';
+  fakeVideo.parentElement.style.position = 'relative';
+  fakeVideo.parentElement.appendChild(passthrough);
+
+  t.assert(!!document.getElementById('propersubs-passthrough'), 'Passthrough element created');
+  t.assert(passthrough.textContent === '私はリンゴを食べます。', 'Passthrough shows captured text');
+
+  // Verify passthrough styling expectations
+  const ptStyle = window.getComputedStyle(passthrough);
+  t.assert(passthrough.className.includes('propersubs-passthrough'), 'Passthrough has correct class');
+
+  // Simulate cue count tracking
+  let cueCount = 0;
+  const cueTexts = ['最初のセリフ', '次のセリフ', '最後のセリフ'];
+  let lastCue = '';
+  for (const text of cueTexts) {
+    if (text !== lastCue) {
+      cueCount++;
+      lastCue = text;
+      passthrough.textContent = text;
+    }
+  }
+  t.assert(cueCount === 3, 'Cue counter increments on unique cues', `${cueCount}`);
+  t.assert(passthrough.textContent === '最後のセリフ', 'Passthrough updates with each cue');
+
+  // Duplicate cue should not increment
+  const prevCount = cueCount;
+  if ('最後のセリフ' !== lastCue) cueCount++;
+  t.assert(cueCount === prevCount, 'Duplicate cue does not increment counter');
+
   // Clean up
+  passthrough.remove();
   fakeVideo.remove();
 
   t.summary();

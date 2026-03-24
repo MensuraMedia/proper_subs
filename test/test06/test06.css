@@ -1,0 +1,4 @@
+input[type="text"], input[type="password"] { width: 100%; background: #1e2133; color: #e8e8ec; border: 1px solid #333654; padding: 8px; font-size: 13px; margin: 4px 0 12px; font-family: inherit; }
+input:focus { border-color: #f5a623; outline: none; }
+label { font-size: 11px; color: #5d5f72; text-transform: uppercase; letter-spacing: 0.8px; }
+select { background: #1e2133; color: #e8e8ec; border: 1px solid #333654; padding: 6px 8px; font-size: 12px; font-family: inherit; }

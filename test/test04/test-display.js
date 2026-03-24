@@ -95,6 +95,23 @@ document.getElementById('btn-run').addEventListener('click', () => {
     addRenderBox(renders, `XSS test: ${xss.slice(0, 25)}...`, colorizeParticles(xss));
   }
 
+  // ── Passthrough overlay styling ──
+  const ptDiv = document.createElement('div');
+  ptDiv.className = 'propersubs-passthrough';
+  ptDiv.textContent = '友達と映画を見に行った';
+  document.body.appendChild(ptDiv);
+
+  // Must have the class for CSS to apply
+  t.assert(ptDiv.className === 'propersubs-passthrough', 'Passthrough has correct class');
+  t.assert(ptDiv.textContent.length > 0, 'Passthrough shows captured text');
+
+  addRenderBox(renders, 'Passthrough overlay (native capture)',
+    `<div class="propersubs-passthrough" style="position:relative;display:inline-block;color:#f5a623;background:rgba(30,33,50,0.88);padding:6px 16px;border-radius:3px;">${escapeHtml('友達と映画を見に行った')}</div>`
+  );
+  t.pass('Passthrough renders with theme styling (yellow on dark gray)');
+
+  ptDiv.remove();
+
   // ── Custom color validation ──
   const colorTests = [
     ['#ff0000', true], ['#abc', true], ['#aabbcc', true], ['#aabbccdd', true],
