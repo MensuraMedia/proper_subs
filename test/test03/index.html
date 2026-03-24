@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test 03 — LLM Provider Pipeline</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .provider-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+    .provider-card { background: var(--surface); border: 1px solid var(--border); padding: 12px; }
+    .provider-card h3 { font-size: 13px; color: var(--accent); margin-bottom: 8px; }
+    .provider-card .result-text { font-family: var(--mono); font-size: 12px; color: var(--muted); min-height: 40px; }
+    .provider-card .latency { font-size: 11px; margin-top: 6px; }
+    .provider-card.success .latency { color: var(--pass); }
+    .provider-card.error .latency { color: var(--fail); }
+    input[type="text"], input[type="password"] { width: 100%; background: #141414; color: var(--text); border: 1px solid var(--border); padding: 8px; font-size: 13px; margin: 4px 0 12px; font-family: inherit; }
+    input:focus { border-color: var(--accent); outline: none; }
+    label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+    select { background: #141414; color: var(--text); border: 1px solid var(--border); padding: 6px 8px; font-size: 12px; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>LLM Provider Pipeline</h1>
+  <p class="test-id">test03</p>
+  <div class="description">
+    Tests the transformation engine against all 4 LLM providers with multiple
+    Japanese sentences of varying complexity. Measures latency, validates output
+    format (particles present, no reordering), and tests timeout behavior.
+    <br><strong>Requires:</strong> At least one valid API key.
+  </div>
+
+  <div class="sim-area">
+    <div class="sim-label">Configuration</div>
+    <label>Provider</label>
+    <select id="provider">
+      <option value="groq">Groq</option>
+      <option value="openai">OpenAI</option>
+      <option value="anthropic">Claude (Anthropic)</option>
+      <option value="gemini">Gemini</option>
+    </select>
+    <br><br>
+    <label>API Key</label>
+    <input type="password" id="api-key" placeholder="Paste API key for selected provider">
+    <label>Timeout (ms)</label>
+    <input type="text" id="timeout" value="5000" placeholder="5000">
+  </div>
+
+  <button id="btn-run">Run LLM Tests</button>
+  <button id="btn-all">Test All Sentences</button>
+  <div id="results"></div>
+
+  <div class="provider-grid" id="provider-results"></div>
+  <div class="log-area" id="log"></div>
+
+  <script src="common.js"></script>
+  <script>
+    // Test sentences: varying complexity
+    const TEST_SENTENCES = [
+      { jp: '私はリンゴを食べます。', particles: ['wa', 'o'], label: 'Basic SOV' },
+      { jp: '彼女が学校に走って行きました', particles: ['ga', 'ni'], label: 'Movement verb' },
+      { jp: '明日から東京で働きます', particles: ['kara', 'de'], label: 'From/at particles' },
+      { jp: '友達と映画を見に行った', particles: ['to', 'o', 'ni'], label: 'Multiple particles' },
+      { jp: 'この本はとても面白いです', particles: ['wa'], label: 'Adjective predicate' },
+      { jp: '猫も犬も好きです', particles: ['mo', 'mo'], label: 'Double particle (mo)' },
+      { jp: '日本語の勉強は難しいですか', particles: ['no', 'wa', 'ka'], label: 'Question with no' },
+      { jp: '駅まで歩いて行きましょう', particles: ['made'], label: 'Until particle' },
+    ];
+
+    // System prompt (same as extension)
+    const SYSTEM_PROMPT = `You are a Japanese → Literal Structured English converter for language learners.
+Rules (never break them):
+1. Preserve the EXACT Japanese word order — do not naturalize or reorder anything.
+2. After each English word, immediately insert the original Japanese particle exactly as it appears in the sentence (wa, ga, o, ni, de, kara, to, mo, no, etc.).
+3. Drop any English words that have no Japanese equivalent (is/are, a/the, etc.).
+4. Keep punctuation, timing, and line breaks identical.
+5. Output ONLY the structured line — nothing else.
+Example:
+Input: 私はリンゴを毎日食べます。
+Output: I wa apple o every day eat.`;
+
+    const PROVIDERS = {
+      groq: {
+        url: 'https://api.groq.com/openai/v1/chat/completions',
+        model: 'llama-3.3-70b-versatile',
+        format: 'openai'
+      },
+      openai: {
+        url: 'https://api.openai.com/v1/chat/completions',
+        model: 'gpt-4o-mini',
+        format: 'openai'
+      },
+      anthropic: {
+        url: 'https://api.anthropic.com/v1/messages',
+        model: 'claude-sonnet-4-20250514',
+        format: 'anthropic'
+      },
+      gemini: {
+        url: 'https://generativelanguage.googleapis.com/v1beta/models/',
+        model: 'gemini-2.0-flash',
+        format: 'gemini'
+      }
+    };
+
+    async function callLLM(provider, apiKey, text, timeoutMs) {
+      const config = PROVIDERS[provider];
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+      try {
+        let res, data, output;
+
+        if (config.format === 'openai') {
+          res = await fetch(config.url, {
+            method: 'POST',
+            signal: controller.signal,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+              model: config.model,
+              messages: [
+                { role: 'system', content: SYSTEM_PROMPT },
+                { role: 'user', content: text }
+              ],
+              temperature: 0.1,
+              max_tokens: 256
+            })
+          });
+          data = await res.json();
+          if (!res.ok) throw new Error(`${res.status}: ${JSON.stringify(data)}`);
+          output = data.choices?.[0]?.message?.content?.trim();
+          if (!output) throw new Error('Missing choices[0].message.content');
+
+        } else if (config.format === 'anthropic') {
+          res = await fetch(config.url, {
+            method: 'POST',
+            signal: controller.signal,
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': apiKey,
+              'anthropic-version': '2023-06-01',
+              'anthropic-dangerous-direct-browser-access': 'true'
+            },
+            body: JSON.stringify({
+              model: config.model,
+              max_tokens: 256,
+              system: SYSTEM_PROMPT,
+              messages: [{ role: 'user', content: text }]
+            })
+          });
+          data = await res.json();
+          if (!res.ok) throw new Error(`${res.status}: ${JSON.stringify(data)}`);
+          output = data.content?.[0]?.text?.trim();
+          if (!output) throw new Error('Missing content[0].text');
+
+        } else if (config.format === 'gemini') {
+          const url = `${config.url}${config.model}:generateContent?key=${apiKey}`;
+          res = await fetch(url, {
+            method: 'POST',
+            signal: controller.signal,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+              contents: [{ parts: [{ text }] }],
+              generationConfig: { temperature: 0.1, maxOutputTokens: 256 }
+            })
+          });
+          data = await res.json();
+          if (!res.ok) throw new Error(`${res.status}: ${JSON.stringify(data)}`);
+          output = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+          if (!output) throw new Error('Missing candidates[0].content.parts[0].text');
+        }
+
+        return output;
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    }
+
+    // Validate output has expected particles
+    function validateOutput(output, expectedParticles) {
+      const lower = output.toLowerCase();
+      const found = expectedParticles.filter(p => lower.includes(` ${p} `) || lower.includes(` ${p}.`) || lower.includes(` ${p},`) || lower.startsWith(`${p} `));
+      return { found, missing: expectedParticles.filter(p => !found.includes(p)) };
+    }
+
+    document.getElementById('btn-run').addEventListener('click', async () => {
+      const t = new TestRunner();
+      const log = msg => appendLog('log', msg);
+      const provider = document.getElementById('provider').value;
+      const apiKey = document.getElementById('api-key').value;
+      const timeoutMs = parseInt(document.getElementById('timeout').value) || 5000;
+
+      if (!apiKey) {
+        t.fail('No API key provided');
+        t.summary();
+        return;
+      }
+
+      t.info(`Testing ${provider} with ${timeoutMs}ms timeout`);
+      log(`Provider: ${provider}, Timeout: ${timeoutMs}ms`);
+
+      // Test the basic sentence first
+      const basic = TEST_SENTENCES[0];
+      const start = performance.now();
+      try {
+        const output = await callLLM(provider, apiKey, basic.jp, timeoutMs);
+        const latency = (performance.now() - start).toFixed(0);
+        t.pass(`${provider} responded`, `${latency}ms`);
+        t.info(`Input: ${basic.jp}`);
+        t.info(`Output: ${output}`);
+        log(`${basic.label}: "${basic.jp}" → "${output}" (${latency}ms)`);
+
+        const v = validateOutput(output, basic.particles);
+        t.assert(v.missing.length === 0, `Particles present: ${basic.particles.join(', ')}`, v.missing.length ? `Missing: ${v.missing.join(', ')}` : 'All found');
+      } catch (e) {
+        const latency = (performance.now() - start).toFixed(0);
+        if (e.name === 'AbortError') {
+          t.fail(`${provider} timed out`, `>${timeoutMs}ms`);
+        } else {
+          t.fail(`${provider} error`, e.message.slice(0, 100));
+        }
+        log(`ERROR: ${e.message}`);
+      }
+
+      t.summary();
+    });
+
+    document.getElementById('btn-all').addEventListener('click', async () => {
+      const t = new TestRunner();
+      const log = msg => appendLog('log', msg);
+      const provider = document.getElementById('provider').value;
+      const apiKey = document.getElementById('api-key').value;
+      const timeoutMs = parseInt(document.getElementById('timeout').value) || 5000;
+      const grid = document.getElementById('provider-results');
+      grid.innerHTML = '';
+
+      if (!apiKey) {
+        t.fail('No API key provided');
+        t.summary();
+        return;
+      }
+
+      t.info(`Testing all ${TEST_SENTENCES.length} sentences on ${provider}`);
+
+      for (const sentence of TEST_SENTENCES) {
+        const card = document.createElement('div');
+        card.className = 'provider-card';
+        card.innerHTML = `<h3>${sentence.label}</h3><div class="result-text">Testing...</div><div class="latency"></div>`;
+        grid.appendChild(card);
+
+        const start = performance.now();
+        try {
+          const output = await callLLM(provider, apiKey, sentence.jp, timeoutMs);
+          const latency = (performance.now() - start).toFixed(0);
+
+          card.classList.add('success');
+          card.querySelector('.result-text').textContent = `${sentence.jp}\n→ ${output}`;
+          card.querySelector('.latency').textContent = `${latency}ms`;
+
+          const v = validateOutput(output, sentence.particles);
+          t.assert(v.missing.length === 0, `${sentence.label}: particles`, v.missing.length ? `Missing: ${v.missing.join(', ')}` : `${latency}ms`);
+          log(`PASS: ${sentence.label} → "${output}" (${latency}ms)`);
+        } catch (e) {
+          const latency = (performance.now() - start).toFixed(0);
+          card.classList.add('error');
+          card.querySelector('.result-text').textContent = e.name === 'AbortError' ? 'TIMEOUT' : e.message.slice(0, 80);
+          card.querySelector('.latency').textContent = `${latency}ms`;
+          t.fail(`${sentence.label}`, e.name === 'AbortError' ? `timeout >${timeoutMs}ms` : e.message.slice(0, 60));
+          log(`FAIL: ${sentence.label} — ${e.message}`);
+        }
+      }
+
+      t.summary();
+    });
+  </script>
+</body>
+</html>

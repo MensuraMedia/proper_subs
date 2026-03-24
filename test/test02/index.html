@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test 02 — Subtitle Capture Across Site Patterns</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .player-sim {
+      position: relative;
+      background: #000;
+      width: 100%;
+      max-width: 800px;
+      aspect-ratio: 16/9;
+      margin: 12px 0;
+      overflow: hidden;
+      border: 1px solid #2a2a2a;
+    }
+    .player-sim .label {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      font-size: 10px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .player-sim .sub-area {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      color: #fff;
+      font-size: 18px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+      min-width: 200px;
+      padding: 4px 12px;
+    }
+    .site-group { margin: 20px 0; }
+    .site-group h3 { font-size: 13px; color: #d4a017; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+  <h1>Subtitle Capture — Site Pattern Simulation</h1>
+  <p class="test-id">test02</p>
+  <div class="description">
+    Simulates the subtitle DOM structures used by real streaming sites (Aniwave, FastStream, Crunchyroll,
+    Netflix, HIDIVE). Tests MutationObserver detection across different class names, nesting patterns,
+    innerHTML vs textContent updates, and subtitle positioning. Each "player" below mimics a real site's subtitle container.
+  </div>
+
+  <!-- Site simulations -->
+  <div class="site-group">
+    <h3>Aniwave / 9anime — JWPlayer captions</h3>
+    <div class="player-sim" id="sim-aniwave">
+      <span class="label">aniwave.to</span>
+      <div class="jw-captions" style="position:absolute;bottom:40px;width:100%;text-align:center;">
+        <div class="jw-text-track-container">
+          <div class="jw-text-track-cue" style="color:#fff;font-size:18px;padding:4px 12px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="site-group">
+    <h3>FastStream — Custom subtitle overlay</h3>
+    <div class="player-sim" id="sim-faststream">
+      <span class="label">rapidstream.io</span>
+      <div class="subtitle-container" style="position:absolute;bottom:30px;width:100%;text-align:center;">
+        <span class="subtitle-line" style="color:#fff;font-size:16px;background:rgba(0,0,0,0.6);padding:2px 8px;"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="site-group">
+    <h3>Crunchyroll — Vimond text track</h3>
+    <div class="player-sim" id="sim-crunchyroll">
+      <span class="label">crunchyroll.com</span>
+      <div class="vimond-text-track-display" data-testid="vimond-subtitle" style="position:absolute;bottom:50px;width:100%;text-align:center;color:#fff;font-size:18px;padding:4px;"></div>
+    </div>
+  </div>
+
+  <div class="site-group">
+    <h3>Netflix — Cadmium player</h3>
+    <div class="player-sim" id="sim-netflix">
+      <span class="label">netflix.com</span>
+      <div class="player-timedtext" style="position:absolute;bottom:60px;width:100%;text-align:center;">
+        <div class="player-timedtext-text-container">
+          <span style="color:#fff;font-size:20px;background:rgba(0,0,0,0.75);padding:2px 10px;"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="site-group">
+    <h3>HIDIVE — Radiant player</h3>
+    <div class="player-sim" id="sim-hidive">
+      <span class="label">hidive.com</span>
+      <div class="rmp-content-subtitle" style="position:absolute;bottom:35px;width:100%;text-align:center;color:#fff;font-size:16px;padding:4px;"></div>
+    </div>
+  </div>
+
+  <button id="btn-run">Run All Capture Tests</button>
+  <div id="results"></div>
+  <div class="log-area" id="log"></div>
+
+  <script src="common.js"></script>
+  <script>
+    const JP_REGEX = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]/;
+
+    const TEST_CUES = [
+      '私はリンゴを食べます。',
+      '彼女が学校に走って行きました',
+      '明日から東京で働きます',
+      '友達と映画を見に行った',
+      'この本はとても面白いです',
+    ];
+
+    // Site selector mappings (mirrors lib/site-detect.js)
+    const SITE_TESTS = [
+      {
+        name: 'Aniwave / JWPlayer',
+        containerId: 'sim-aniwave',
+        selector: '.jw-text-track-cue',
+        updateMethod: 'textContent'
+      },
+      {
+        name: 'FastStream',
+        containerId: 'sim-faststream',
+        selector: '.subtitle-line',
+        updateMethod: 'innerHTML'
+      },
+      {
+        name: 'Crunchyroll / Vimond',
+        containerId: 'sim-crunchyroll',
+        selector: '.vimond-text-track-display',
+        updateMethod: 'textContent'
+      },
+      {
+        name: 'Netflix / Cadmium',
+        containerId: 'sim-netflix',
+        selector: '.player-timedtext-text-container span',
+        updateMethod: 'innerHTML'
+      },
+      {
+        name: 'HIDIVE / Radiant',
+        containerId: 'sim-hidive',
+        selector: '.rmp-content-subtitle',
+        updateMethod: 'textContent'
+      }
+    ];
+
+    document.getElementById('btn-run').addEventListener('click', async () => {
+      const t = new TestRunner();
+      const log = msg => appendLog('log', msg);
+
+      // ── Japanese detection ──
+      log('--- Japanese Detection ---');
+      const jpTests = [
+        ['私はテスト', true], ['Hello world', false], ['カタカナ', true],
+        ['123', false], ['Mixed 世界', true], ['', false], ['   ', false]
+      ];
+      for (const [text, expected] of jpTests) {
+        const result = JP_REGEX.test(text);
+        t.assert(result === expected, `JP detect: "${text || '(empty)'}"`, `${result}`);
+      }
+
+      // ── Per-site capture tests ──
+      for (const site of SITE_TESTS) {
+        log(`\n--- ${site.name} ---`);
+        const container = document.getElementById(site.containerId);
+        const subEl = container.querySelector(site.selector);
+
+        if (!subEl) {
+          t.fail(`${site.name}: subtitle element not found`, site.selector);
+          continue;
+        }
+        t.pass(`${site.name}: element found`, site.selector);
+
+        // Set up observer
+        const captured = [];
+        const obs = new MutationObserver(() => {
+          const text = subEl.textContent.trim();
+          if (text && !captured.includes(text)) captured.push(text);
+        });
+        obs.observe(subEl, { childList: true, characterData: true, subtree: true });
+
+        // Simulate cue sequence
+        for (const cue of TEST_CUES) {
+          await new Promise(r => setTimeout(r, 120));
+          if (site.updateMethod === 'innerHTML') {
+            subEl.innerHTML = `<span>${cue}</span>`;
+          } else {
+            subEl.textContent = cue;
+          }
+          log(`  Set (${site.updateMethod}): "${cue}"`);
+        }
+
+        await new Promise(r => setTimeout(r, 200));
+        obs.disconnect();
+
+        t.assert(captured.length === TEST_CUES.length,
+          `${site.name}: captured ${captured.length}/${TEST_CUES.length} cues`,
+          captured.length < TEST_CUES.length ? `missed ${TEST_CUES.length - captured.length}` : 'all captured'
+        );
+
+        // Verify all captured text is Japanese
+        const allJP = captured.every(c => JP_REGEX.test(c));
+        t.assert(allJP, `${site.name}: all captured cues are Japanese`);
+
+        log(`  Captured: ${captured.length} cues`);
+      }
+
+      // ── Deduplication test ──
+      log('\n--- Deduplication ---');
+      const dedupeEl = document.querySelector('.jw-text-track-cue');
+      const dupes = [];
+      const dupeObs = new MutationObserver(() => {
+        const text = dedupeEl.textContent.trim();
+        if (text) dupes.push(text);
+      });
+      dupeObs.observe(dedupeEl, { childList: true, characterData: true, subtree: true });
+
+      // Set same text twice
+      dedupeEl.textContent = '同じテキスト';
+      await new Promise(r => setTimeout(r, 100));
+      dedupeEl.textContent = '同じテキスト';
+      await new Promise(r => setTimeout(r, 100));
+      dedupeEl.textContent = '違うテキスト';
+      await new Promise(r => setTimeout(r, 200));
+      dupeObs.disconnect();
+
+      t.info(`Dedup: observer fired ${dupes.length} times for 3 textContent sets`, 'Extension should filter dupes');
+
+      // ── Empty/whitespace handling ──
+      log('\n--- Edge Cases ---');
+      t.assert(!JP_REGEX.test(''), 'Empty string not detected as JP');
+      t.assert(!JP_REGEX.test('   '), 'Whitespace not detected as JP');
+      t.assert(!JP_REGEX.test('12345'), 'Numbers not detected as JP');
+      t.assert(JP_REGEX.test('あ'), 'Single hiragana detected');
+      t.assert(JP_REGEX.test('ア'), 'Single katakana detected');
+      t.assert(JP_REGEX.test('漢'), 'Single kanji detected');
+
+      t.summary();
+    });
+  </script>
+</body>
+</html>

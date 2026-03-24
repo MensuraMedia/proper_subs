@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "ProperSubs Test 01 — Manifest & File Integrity",
+  "version": "1.0.0",
+  "description": "Validates extension manifest structure, file references, and permission minimality.",
+  "permissions": ["storage"],
+  "action": {
+    "default_popup": "index.html"
+  }
+}

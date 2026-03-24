@@ -55,16 +55,29 @@ async function clearCacheForTab(tabId) {
 // API key is stored in chrome.storage.local (never synced to Google).
 // All other preferences are in chrome.storage.sync.
 async function getTransformSettings() {
-  const [syncSettings, localSettings] = await Promise.all([
-    chrome.storage.sync.get({
-      provider: 'groq',
-      model: '',
-      transformMode: 'llm',
-      timeoutMs: 2000
-    }),
-    chrome.storage.local.get({ apiKey: '' })
-  ]);
-  return { ...syncSettings, ...localSettings };
+  const defaults = {
+    provider: 'groq',
+    model: '',
+    transformMode: 'llm',
+    timeoutMs: 2000,
+    apiKey: ''
+  };
+
+  try {
+    const [syncSettings, localSettings] = await Promise.all([
+      chrome.storage.sync.get({
+        provider: defaults.provider,
+        model: defaults.model,
+        transformMode: defaults.transformMode,
+        timeoutMs: defaults.timeoutMs
+      }),
+      chrome.storage.local.get({ apiKey: defaults.apiKey })
+    ]);
+    return { ...syncSettings, ...localSettings };
+  } catch (err) {
+    console.warn('[ProperSubs] Failed to load settings, using defaults:', err);
+    return defaults;
+  }
 }
 
 // ── Message handler ─────────────────────────────────────────────────────
@@ -155,11 +168,11 @@ chrome.runtime.onInstalled.addListener(details => {
       autoPause: false,
       customSelectors: '',
       timeoutMs: 2000
-    });
+    }).catch(err => console.warn('[ProperSubs] Failed to set sync defaults:', err));
 
     // Local storage: secrets (never synced)
     chrome.storage.local.set({
       apiKey: ''
-    });
+    }).catch(err => console.warn('[ProperSubs] Failed to set local defaults:', err));
   }
 });

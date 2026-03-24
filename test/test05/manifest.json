@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "ProperSubs Test 05 — Storage Isolation & Security",
+  "version": "1.0.0",
+  "description": "Verifies API key is in chrome.storage.local (not synced), preferences in sync, and no secrets leak.",
+  "permissions": ["storage"],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

@@ -1,0 +1,162 @@
+/* ── Shared test harness styles — dark amber theme ───────────────────── */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0e0e0e;
+  --surface: #161616;
+  --border: #2a2a2a;
+  --text: #e0e0e0;
+  --muted: #666;
+  --accent: #d4a017;
+  --pass: #4ecca3;
+  --fail: #e06666;
+  --warn: #e69138;
+  --mono: 'Consolas', 'Courier New', monospace;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 24px;
+  line-height: 1.6;
+}
+
+h1 {
+  font-size: 18px;
+  color: var(--accent);
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+
+.test-id {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+
+.description {
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 20px;
+  padding: 12px;
+  background: var(--surface);
+  border-left: 3px solid var(--accent);
+}
+
+/* ── Results ─────────────────────────────────────────────────────────── */
+
+#results {
+  margin-top: 16px;
+}
+
+.result {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.result .icon {
+  flex-shrink: 0;
+  font-size: 14px;
+  width: 20px;
+  text-align: center;
+}
+
+.result.pass { color: var(--pass); }
+.result.fail { color: var(--fail); }
+.result.warn { color: var(--warn); }
+.result.info { color: var(--muted); }
+
+.result .label {
+  flex: 1;
+  color: var(--text);
+}
+
+.result .detail {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  max-width: 50%;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Summary ─────────────────────────────────────────────────────────── */
+
+.summary {
+  margin-top: 20px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  display: flex;
+  gap: 20px;
+}
+
+.summary .count {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.summary .pass-count { color: var(--pass); }
+.summary .fail-count { color: var(--fail); }
+.summary .warn-count { color: var(--warn); }
+
+/* ── Controls ────────────────────────────────────────────────────────── */
+
+button {
+  background: #1e1e1e;
+  color: var(--accent);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-family: inherit;
+  margin-top: 16px;
+}
+
+button:hover { background: #252525; }
+
+/* ── Simulation areas ────────────────────────────────────────────────── */
+
+.sim-area {
+  margin: 16px 0;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  position: relative;
+  min-height: 80px;
+}
+
+.sim-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.log-area {
+  margin-top: 16px;
+  background: #0a0a0a;
+  border: 1px solid var(--border);
+  padding: 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  max-height: 300px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
