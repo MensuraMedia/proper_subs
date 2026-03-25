@@ -1,0 +1,142 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #1a1d2e;
+  color: #e8e8ec;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  padding: 24px;
+}
+
+h1 {
+  font-size: 18px;
+  color: #f5a623;
+  margin-bottom: 4px;
+}
+
+.test-id {
+  font-size: 11px;
+  color: #5d5f72;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.instructions {
+  font-size: 13px;
+  color: #9698a6;
+  margin-bottom: 20px;
+  padding: 12px;
+  background: #222538;
+  border-left: 3px solid #f5a623;
+  line-height: 1.6;
+}
+
+.instructions strong {
+  color: #f5a623;
+}
+
+.player-wrapper {
+  position: relative;
+  max-width: 800px;
+  background: #000;
+  margin-bottom: 20px;
+}
+
+video {
+  width: 100%;
+  display: block;
+}
+
+.status-panel {
+  background: #222538;
+  border: 1px solid #333654;
+  padding: 16px;
+  max-width: 800px;
+  margin-bottom: 16px;
+}
+
+.status-panel h2 {
+  font-size: 13px;
+  color: #f5a623;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(51, 54, 84, 0.5);
+  font-size: 13px;
+}
+
+.check-box {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #3a3d54;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: transparent;
+  flex-shrink: 0;
+}
+
+.check-box.on {
+  border-color: #f5a623;
+  background: rgba(245, 166, 35, 0.15);
+  color: #f5a623;
+}
+
+.check-label {
+  flex: 1;
+  color: #9698a6;
+}
+
+.check-label.on {
+  color: #e8e8ec;
+}
+
+.check-detail {
+  font-size: 10px;
+  color: #5d5f72;
+  font-family: 'Consolas', monospace;
+}
+
+.check-detail.on {
+  color: #4ecca3;
+}
+
+.log-area {
+  background: #141728;
+  border: 1px solid #333654;
+  padding: 12px;
+  font-family: 'Consolas', monospace;
+  font-size: 11px;
+  color: #5d5f72;
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  max-width: 800px;
+}
+
+/* Subtitle container for DOM-overlay simulation */
+.subtitle-container {
+  position: absolute;
+  bottom: 48px;
+  width: 100%;
+  text-align: center;
+  pointer-events: none;
+}
+
+.subtitle-line {
+  color: #fff;
+  font-size: 18px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 4px 12px;
+  display: inline-block;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+}
