@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "ProperSubs Test 07 — Live End-to-End Capture",
+  "version": "1.0.0",
+  "description": "Tests live subtitle capture with an embedded video and WebVTT track.",
+  "permissions": ["storage", "tabs"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["subtitles.vtt"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

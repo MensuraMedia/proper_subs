@@ -7,19 +7,7 @@
 </head>
 <body>
   <h1>Live End-to-End Subtitle Capture</h1>
-  <p class="test-id">test07 — serve via HTTP, not as extension</p>
-
-  <div class="instructions">
-    <strong>How to use:</strong> This page must be served via HTTP (not loaded as an extension).
-    Run <code>python3 -m http.server 8080</code> from the test/test07/ folder, then open
-    <code>http://localhost:8080</code> in Chrome with the main Proper Subs extension installed.
-    <br><br>
-    <strong>What to check:</strong>
-    <br>1. Click the Proper Subs extension icon — the popup should show checkmarks for Video Page, Video Stream, Audio Stream, and Subtitle Stream.
-    <br>2. Click play on the video below — the DOM subtitle overlay will show Japanese text.
-    <br>3. The extension's passthrough overlay (yellow text on dark gray) should appear on the video frame.
-    <br>4. If an API key is configured, the structured English transformation should also appear.
-  </div>
+  <p class="test-id">test07</p>
 
   <div class="player-wrapper" id="player">
     <video id="video" controls preload="metadata">
@@ -32,9 +20,9 @@
     </div>
   </div>
 
-  <!-- Self-detection panel (runs without the extension) -->
+  <!-- Self-detection panel -->
   <div class="status-panel">
-    <h2>Page Self-Detection</h2>
+    <h2>Detection</h2>
     <div class="check-row">
       <div class="check-box" id="chk-video">&#x2713;</div>
       <span class="check-label" id="lbl-video">Video Element</span>
@@ -56,19 +44,15 @@
       <span class="check-detail" id="det-dom">--</span>
     </div>
     <div class="check-row">
-      <div class="check-box" id="chk-ext">&#x2713;</div>
-      <span class="check-label" id="lbl-ext">Proper Subs Extension</span>
-      <span class="check-detail" id="det-ext">--</span>
-    </div>
-    <div class="check-row">
       <div class="check-box" id="chk-capture">&#x2713;</div>
-      <span class="check-label" id="lbl-capture">Subtitle Capture Active</span>
+      <span class="check-label" id="lbl-capture">Subtitle Cues Fired</span>
       <span class="check-detail" id="det-capture">--</span>
     </div>
   </div>
 
   <div class="log-area" id="log"></div>
 
+  <script src="common.js"></script>
   <script src="test07.js"></script>
 </body>
 </html>
