@@ -4,7 +4,8 @@
   "version": "0.2.0",
   "description": "Transforms Japanese subtitles into literal structured English preserving exact word order with visible particles for language learners. Works with streaming content, videos, news, anime, and more.",
   "permissions": [
-    "storage"
+    "storage",
+    "activeTab"
   ],
   "host_permissions": [
     "https://api.groq.com/*",

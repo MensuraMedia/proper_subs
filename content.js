@@ -10,6 +10,8 @@
 'use strict';
 
 (() => {
+  console.log('[ProperSubs] Content script loaded on:', window.location.href);
+
   // ── State ──────────────────────────────────────────────────────────────
   let enabled = true;
   let debugMode = false;
